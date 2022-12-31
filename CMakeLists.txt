@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.12)
+
+project(blackthorn)
+
+set(CMAKE_CXX_STANDARD 20)
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
+set(LIBRARY_PROJECT_NAME "library")
+set(LIBRARY_PROJECT_PATH "src/library/")
+
+set(SOURCES "*.cpp")
+set(HEADERS "*.hpp")
+
+file(GLOB_RECURSE LIBRARY_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "${LIBRARY_PROJECT_PATH}${SOURCES}")
+file(GLOB_RECURSE LIBRARY_HEADERS RELATIVE ${CMAKE_SOURCE_DIR} "${LIBRARY_PROJECT_PATH}${HEADERS}")
+
+add_library(${LIBRARY_PROJECT_NAME} STATIC ${LIBRARY_SOURCES} ${LIBRARY_HEADERS})
+
+target_link_libraries(${LIBRARY_PROJECT_NAME} ${CONAN_LIBS})
