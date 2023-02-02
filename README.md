@@ -6,7 +6,7 @@ Easy to use client-server library with C++ and Boost
 How to run:
 - **mkdir build**
 - **cd build**
-- **pip install -U pip**
+- **python -m pip install -U pip**
 - **pip install -U conan**
 - **conan install .. [-s build_type={Debug | Release}]**
 - **cmake build -S ..**
