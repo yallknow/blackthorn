@@ -40,7 +40,7 @@ class log_builder final {
  private:
   static std::string msf_create_body(
       const std::string_view pc_Tag, const std::string_view pc_Message,
-      const boost::system::error_code pc_ErrorCode);
+      const boost::system::error_code pc_ErrorCode) noexcept;
 
  private:
   static std::atomic<bool> msv_IsNextSectionClosed;

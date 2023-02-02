@@ -112,7 +112,7 @@ void thorn::library::log_builder::msf_set_log_filename_postfix(
 
 std::string thorn::library::log_builder::msf_create_body(
     const std::string_view pc_Tag, const std::string_view pc_Message,
-    const boost::system::error_code pc_ErrorCode) {
+    const boost::system::error_code pc_ErrorCode) noexcept {
   std::string lv_Body{};
 
   lv_Body += "{ \"";
