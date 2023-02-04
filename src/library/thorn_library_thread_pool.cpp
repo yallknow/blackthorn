@@ -19,9 +19,7 @@ thorn::library::thread_pool::thread_pool(
 thorn::library::thread_pool::~thread_pool() {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
-  if (this->mf_is_running()) {
-    this->mf_stop();
-  }
+  this->mf_stop();
 }
 
 bool thorn::library::thread_pool::mpf_inner_run() noexcept {

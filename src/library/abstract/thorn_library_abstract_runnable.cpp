@@ -9,9 +9,7 @@ thorn::library::abstract::runnable::runnable() noexcept {
 thorn::library::abstract::runnable::~runnable() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
-  if (this->mv_IsRunning) {
-    this->mf_stop();
-  }
+  this->mf_stop();
 }
 
 void thorn::library::abstract::runnable::mf_run() noexcept {
