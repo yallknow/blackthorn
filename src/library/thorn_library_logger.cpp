@@ -30,7 +30,7 @@ std::unique_ptr<std::mutex> thorn::library::logger::msp_AsyncLogStreamMutex{
 void thorn::library::logger::msf_init() noexcept {
   if (msv_IsInitialized) {
 #if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-    std::cout << gsc_WarningTag << ": " << __FUNCSIG__
+    std::cerr << gsc_WarningTag << ": " << __FUNCSIG__
               << " - Logger is already initialized!\n";
 #endif
 
@@ -44,7 +44,7 @@ void thorn::library::logger::msf_init() noexcept {
 
     if (lv_ErrorCode) {
 #if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-      std::cout << gsc_ErrorTag << ": " << __FUNCSIG__ << " - "
+      std::cerr << gsc_ErrorTag << ": " << __FUNCSIG__ << " - "
                 << lv_ErrorCode.value() << " : "
                 << lv_ErrorCode.message() + '\n';
 #endif
@@ -72,7 +72,7 @@ void thorn::library::logger::msf_init() noexcept {
       !msp_AsyncLogStream->is_open() || !msp_LogStreamMutex ||
       !msp_AsyncLogStreamMutex) {
 #if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-    std::cout << gsc_ErrorTag << ": " << __FUNCSIG__
+    std::cerr << gsc_ErrorTag << ": " << __FUNCSIG__
               << " - Can't initialize logger!\n";
 #endif
 
@@ -85,7 +85,7 @@ void thorn::library::logger::msf_init() noexcept {
 void thorn::library::logger::msf_destroy() noexcept {
   if (!msv_IsInitialized) {
 #if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-    std::cout << gsc_WarningTag << ": " << __FUNCSIG__
+    std::cerr << gsc_WarningTag << ": " << __FUNCSIG__
               << " - Logger is already destroyed!\n";
 #endif
 
