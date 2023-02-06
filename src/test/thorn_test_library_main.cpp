@@ -3,10 +3,10 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "../library/abstract/thorn_library_abstract_runnable.hpp"
+#include "../library/thorn_library_focused_thread_pool.hpp"
 #include "../library/thorn_library_log_builder.hpp"
 #include "../library/thorn_library_logger.hpp"
 #include "../library/thorn_library_preprocessor.hpp"
-#include "../library/thorn_library_thread_pool.hpp"
 #include "thorn_test_fixture.hpp"
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_log_builder) {
@@ -109,11 +109,11 @@ void thorn_test_library_test_case_abstract_runnable(
   BOOST_CHECK(!pp_RunnableClass->mf_is_running());
 };
 
-BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_thread_pool) {
+BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_focused_thread_pool) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   thorn_test_library_test_case_abstract_runnable(
-      std::make_shared<thorn::library::thread_pool>([]() -> void {}));
+      std::make_shared<thorn::library::focused_thread_pool>([]() -> void {}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
