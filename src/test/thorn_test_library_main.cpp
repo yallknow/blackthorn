@@ -1,8 +1,10 @@
 #define BOOST_TEST_MODULE thorn_test_library_main
 
+#include <boost/asio.hpp>  // NOTE: Including asio first to avoid build errors
 #include <boost/test/included/unit_test.hpp>
 
 #include "../library/abstract/thorn_library_abstract_runnable.hpp"
+#include "../library/thorn_library_context.hpp"
 #include "../library/thorn_library_focused_thread_pool.hpp"
 #include "../library/thorn_library_log_builder.hpp"
 #include "../library/thorn_library_logger.hpp"
@@ -108,6 +110,23 @@ void thorn_test_library_test_case_abstract_runnable(
   pp_RunnableClass->mf_stop();
   BOOST_CHECK(!pp_RunnableClass->mf_is_running());
 };
+
+BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_context) {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  std::shared_ptr<thorn::library::context> lp_Context{
+      std::make_shared<thorn::library::context>()};
+
+  thorn_test_library_test_case_abstract_runnable(lp_Context);
+
+  // NOTE: Checking if the inner context is running
+  lp_Context->mf_run();
+  BOOST_CHECK(!lp_Context->mf_get_context().stopped());
+
+  // NOTE: Checking if the inner context is stopped
+  lp_Context->mf_stop();
+  BOOST_CHECK(lp_Context->mf_get_context().stopped());
+}
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_focused_thread_pool) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
