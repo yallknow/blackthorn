@@ -1,8 +1,8 @@
-#include "thorn_library_thread_pool.hpp"
+#include "thorn_library_focused_thread_pool.hpp"
 
 #include "thorn_library_preprocessor.hpp"
 
-thorn::library::thread_pool::thread_pool(
+thorn::library::focused_thread_pool::focused_thread_pool(
     const std::function<void()>& pcl_Task,
     const std::uint32_t pc_ThreadPoolSize) noexcept
     : mc_Task{pcl_Task}, mv_ThreadPoolSize{pc_ThreadPoolSize} {
@@ -16,13 +16,13 @@ thorn::library::thread_pool::thread_pool(
   }
 }
 
-thorn::library::thread_pool::~thread_pool() {
+thorn::library::focused_thread_pool::~focused_thread_pool() {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   this->mf_stop();
 }
 
-bool thorn::library::thread_pool::mpf_inner_run() noexcept {
+bool thorn::library::focused_thread_pool::mpf_inner_run() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   this->mv_ThreadPool.reserve(this->mv_ThreadPoolSize);
@@ -34,7 +34,7 @@ bool thorn::library::thread_pool::mpf_inner_run() noexcept {
   return true;
 }
 
-bool thorn::library::thread_pool::mpf_inner_stop() noexcept {
+bool thorn::library::focused_thread_pool::mpf_inner_stop() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   for (std::thread& ll_Thread : this->mv_ThreadPool) {
