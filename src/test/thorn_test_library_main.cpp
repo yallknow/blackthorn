@@ -8,6 +8,7 @@
 #include "../library/thorn_library_focused_thread_pool.hpp"
 #include "../library/thorn_library_log_builder.hpp"
 #include "../library/thorn_library_logger.hpp"
+#include "../library/thorn_library_poster.hpp"
 #include "../library/thorn_library_preprocessor.hpp"
 #include "thorn_test_fixture.hpp"
 
@@ -133,6 +134,22 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_focused_thread_pool) {
 
   thorn_test_library_test_case_abstract_runnable(
       std::make_shared<thorn::library::focused_thread_pool>([]() -> void {}));
+}
+
+BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_poster) {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  bool lv_Triggered{false};
+  boost::asio::io_context lv_Context{};
+
+  {
+    thorn::library::poster lv_Poster{
+        lv_Context, [&lv_Triggered]() -> void { lv_Triggered = true; }};
+    // NOTE: Poster destructor will schedule work on context
+  }
+
+  lv_Context.run();
+  BOOST_CHECK(lv_Triggered);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
