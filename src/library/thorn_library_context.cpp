@@ -33,12 +33,6 @@ bool thorn::library::context::mpf_inner_run() noexcept {
 
   this->mv_FocusedThreadPool.mf_run();
 
-  if (!this->mv_FocusedThreadPool.mf_is_running()) {
-    _THORN_LIBRARY_LOG_ERROR_("Unable to run focused thread pool!");
-
-    return false;
-  }
-
   return true;
 }
 
@@ -50,12 +44,6 @@ bool thorn::library::context::mpf_inner_stop() noexcept {
   this->mv_Context.stop();
 
   this->mv_FocusedThreadPool.mf_stop();
-
-  if (this->mv_FocusedThreadPool.mf_is_running()) {
-    _THORN_LIBRARY_LOG_ERROR_("Unable to stop focused thread pool!");
-
-    return false;
-  }
 
   return true;
 }
