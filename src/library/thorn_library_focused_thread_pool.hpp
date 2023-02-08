@@ -29,7 +29,7 @@ class focused_thread_pool final : public abstract::runnable {
   const std::function<void()> mc_Task;
 
  private:
-  std::uint32_t mv_ThreadPoolSize{};
+  std::uint32_t mv_ThreadPoolSize;
   std::vector<std::thread> mv_ThreadPool{};
 
  public:

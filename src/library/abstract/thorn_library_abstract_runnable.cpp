@@ -17,6 +17,7 @@ void thorn::library::abstract::runnable::mf_run() noexcept {
 
   if (this->mv_IsRunning) {
     _THORN_LIBRARY_LOG_WARNING_("Runnable is already running!");
+
     return;
   }
 
@@ -28,6 +29,7 @@ void thorn::library::abstract::runnable::mf_stop() noexcept {
 
   if (!this->mv_IsRunning) {
     _THORN_LIBRARY_LOG_WARNING_("Runnable already stopped!");
+
     return;
   }
 

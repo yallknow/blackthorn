@@ -18,5 +18,6 @@ int main() {
   const int lc_ReturnValue{f_server_main()};
 
   thorn::library::log_builder::msf_destroy();
+
   return lc_ReturnValue;
 }
