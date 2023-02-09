@@ -20,6 +20,7 @@ class context final : public abstract::runnable {
                        std::thread::hardware_concurrency()) noexcept;
   /* virtual */ ~context() noexcept override;
 
+ public:
   boost::asio::io_context& mf_get_context() noexcept;
 
  private:
@@ -39,6 +40,7 @@ class context final : public abstract::runnable {
   explicit context(const context& pcl_Other) noexcept = delete;
   explicit context(context&& pc_Other) noexcept = delete;
 
+ public:
   context& operator=(const context& pcl_Other) noexcept = delete;
   context& operator=(context&& pc_Other) noexcept = delete;
 };

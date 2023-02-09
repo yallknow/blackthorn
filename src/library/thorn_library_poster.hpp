@@ -18,6 +18,7 @@ class poster final {
   explicit poster(const poster& pcl_Other) noexcept;
   explicit poster(poster&& pr_Other) noexcept;
 
+ public:
   void mf_cancel() noexcept;
 
  private:

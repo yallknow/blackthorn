@@ -1,5 +1,6 @@
 #include "thorn_library_logger.hpp"
 
+#include <boost/system/error_code.hpp>
 #include <filesystem>
 
 #include "thorn_library_preprocessor.hpp"

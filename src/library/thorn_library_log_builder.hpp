@@ -43,10 +43,10 @@ class log_builder final {
       const boost::system::error_code pc_ErrorCode) noexcept;
 
  private:
-  static std::atomic<bool> msv_IsNextSectionClosed;
+  const std::chrono::steady_clock::time_point mc_StartTime;
 
  private:
-  const std::chrono::steady_clock::time_point mc_StartTime;
+  static std::atomic<bool> msv_IsNextSectionClosed;
 
  public:
   explicit log_builder(const log_builder& pcl_Other) noexcept = delete;
