@@ -2,15 +2,20 @@
 
 #include <boost/asio.hpp>  // NOTE: Including asio first to avoid build errors
 #include <boost/test/included/unit_test.hpp>
+#include <cstdint>
+#include <memory>
+#include <string_view>
 
 #include "../library/abstract/thorn_library_abstract_runnable.hpp"
 #include "../library/tcp/abstract/thorn_library_tcp_abstract_socket_holder.hpp"
+#include "../library/tcp/thorn_library_tcp_acceptor.hpp"
 #include "../library/thorn_library_context.hpp"
 #include "../library/thorn_library_focused_thread_pool.hpp"
 #include "../library/thorn_library_log_builder.hpp"
 #include "../library/thorn_library_logger.hpp"
 #include "../library/thorn_library_poster.hpp"
 #include "../library/thorn_library_preprocessor.hpp"
+#include "tcp/thorn_test_tcp_async_connector.hpp"
 #include "thorn_test_fixture.hpp"
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_log_builder) {
@@ -133,6 +138,30 @@ void thorn_test_library_test_case_tcp_abstract_socket_holder(
   // NOTE: mf_get_socket() call on a non-running object
   BOOST_CHECK(!pp_SocketHolderClass->mf_get_socket());
 };
+
+BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_acceptor) {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  boost::asio::io_context lv_Context{};
+
+  constexpr std::string_view lc_Addres{"127.0.0.1"};
+  constexpr std::uint16_t lc_Port{15051};
+
+  thorn::test::tcp::async_connector lv_AsyncConnector{lc_Addres, lc_Port};
+
+  // NOTE: We run the async_connector in parallel to make the acceptor work
+  lv_AsyncConnector.mf_async_connect();
+
+  std::shared_ptr<thorn::library::tcp::acceptor> lp_Acceptor{
+      std::make_shared<thorn::library::tcp::acceptor>(lv_Context, lc_Port)};
+
+  thorn_test_library_test_case_abstract_runnable(lp_Acceptor);
+
+  // NOTE: Next test requires the acceptor to be running from the start
+  lp_Acceptor->mf_run();
+
+  thorn_test_library_test_case_tcp_abstract_socket_holder(lp_Acceptor);
+}
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_context) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
