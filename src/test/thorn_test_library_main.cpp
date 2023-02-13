@@ -4,6 +4,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "../library/abstract/thorn_library_abstract_runnable.hpp"
+#include "../library/tcp/abstract/thorn_library_tcp_abstract_socket_holder.hpp"
 #include "../library/thorn_library_context.hpp"
 #include "../library/thorn_library_focused_thread_pool.hpp"
 #include "../library/thorn_library_log_builder.hpp"
@@ -110,6 +111,27 @@ void thorn_test_library_test_case_abstract_runnable(
   // NOTE: Stopping a restarted Object
   pp_RunnableClass->mf_stop();
   BOOST_CHECK(!pp_RunnableClass->mf_is_running());
+};
+
+void thorn_test_library_test_case_tcp_abstract_socket_holder(
+    std::shared_ptr<thorn::library::tcp::abstract::socket_holder>
+        pp_SocketHolderClass) {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  // NOTE: Object is valid
+  BOOST_CHECK(pp_SocketHolderClass);
+
+  // NOTE: Object is running from the start
+  BOOST_CHECK(pp_SocketHolderClass->mf_is_running());
+
+  // NOTE: mf_get_socket() call on a running object
+  BOOST_CHECK(pp_SocketHolderClass->mf_get_socket());
+
+  // NOTE: Object is no longer running
+  BOOST_CHECK(!pp_SocketHolderClass->mf_is_running());
+
+  // NOTE: mf_get_socket() call on a non-running object
+  BOOST_CHECK(!pp_SocketHolderClass->mf_get_socket());
 };
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_context) {
