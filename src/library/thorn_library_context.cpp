@@ -21,7 +21,7 @@ thorn::library::context::~context() noexcept {
 }
 
 boost::asio::io_context& thorn::library::context::mf_get_context() noexcept {
-  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+  _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
   return this->mv_Context;
 }
