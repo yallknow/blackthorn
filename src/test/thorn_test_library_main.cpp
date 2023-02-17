@@ -1,9 +1,11 @@
 #define BOOST_TEST_MODULE thorn_test_library_main
 
 #include <boost/asio.hpp>  // NOTE: Including asio first to avoid build errors
+#include <boost/system/error_code.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string_view>
 
 #include "../library/abstract/thorn_library_abstract_runnable.hpp"
@@ -132,7 +134,17 @@ void thorn_test_library_test_case_tcp_abstract_socket_holder(
   BOOST_CHECK(pp_SocketHolderClass->mf_is_running());
 
   // NOTE: mf_get_socket() call on a running object
-  BOOST_CHECK(pp_SocketHolderClass->mf_get_socket());
+  std::optional<boost::asio::ip::tcp::socket> lv_OptionalSocket{
+      pp_SocketHolderClass->mf_get_socket()};
+
+  BOOST_CHECK(lv_OptionalSocket);
+
+  boost::system::error_code lv_ErrorCode{};
+  lv_OptionalSocket->close(lv_ErrorCode);
+
+  BOOST_CHECK(!lv_ErrorCode);
+
+  lv_OptionalSocket.reset();
 
   // NOTE: Object is no longer running
   BOOST_CHECK(!pp_SocketHolderClass->mf_is_running());
