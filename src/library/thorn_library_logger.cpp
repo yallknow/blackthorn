@@ -1,7 +1,7 @@
 #include "thorn_library_logger.hpp"
 
-#include <boost/system/error_code.hpp>
 #include <filesystem>
+#include <system_error>
 
 #include "thorn_library_preprocessor.hpp"
 #include "thorn_library_time.hpp"

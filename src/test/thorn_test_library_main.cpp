@@ -1,6 +1,8 @@
 #define BOOST_TEST_MODULE thorn_test_library_main
 
-#include <boost/asio.hpp>  // NOTE: Including asio first to avoid build errors
+// NOTE: Including asio first to avoid build errors
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <cstdint>
