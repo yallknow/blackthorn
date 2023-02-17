@@ -6,9 +6,18 @@
 namespace thorn {
 namespace test {
 
-struct fixture final {
+class fixture final {
+ public:
   explicit fixture() noexcept;
   /* virtual */ ~fixture() noexcept;
+
+ public:
+  explicit fixture(const fixture& pcl_Other) noexcept = delete;
+  explicit fixture(fixture&& pr_Other) noexcept = delete;
+
+ public:
+  fixture& operator=(const fixture& pcl_Other) noexcept = delete;
+  fixture& operator=(fixture&& pr_Other) noexcept = delete;
 };
 
 }  // namespace test
