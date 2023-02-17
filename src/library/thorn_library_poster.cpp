@@ -1,5 +1,7 @@
 #include "thorn_library_poster.hpp"
 
+#include <boost/asio/post.hpp>
+
 thorn::library::poster::poster(boost::asio::io_context& pl_Context,
                                const std::function<void()>& pcl_Task) noexcept
     : ml_Context{pl_Context}, mv_Task{pcl_Task} {}

@@ -3,7 +3,7 @@
 #ifndef _THORN_LIBRARY_ABSTRACT_SOCKET_HOLDER_
 #define _THORN_LIBRARY_ABSTRACT_SOCKET_HOLDER_
 
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <optional>
 
 #include "../../abstract/thorn_library_abstract_runnable.hpp"

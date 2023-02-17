@@ -3,7 +3,7 @@
 #ifndef _THORN_LIBRARY_POSTER_
 #define _THORN_LIBRARY_POSTER_
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_context.hpp>
 #include <functional>
 
 namespace thorn {

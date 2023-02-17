@@ -3,7 +3,8 @@
 #ifndef _THORN_LIBRARY_CONTEXT_
 #define _THORN_LIBRARY_CONTEXT_
 
-#include <boost/asio.hpp>
+#include <boost/asio/executor_work_guard.hpp>
+#include <boost/asio/io_context.hpp>
 #include <cstdint>
 #include <optional>
 #include <thread>
