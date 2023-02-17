@@ -20,11 +20,14 @@ class async_connector final : public abstract::network_unit {
   /* virtual */ ~async_connector() noexcept override;
 
  public:
+  void mf_set_address(const std::string_view pc_Address) noexcept;
+  void mf_set_port(const std::uint16_t pc_Port) noexcept;
+
   void mf_async_connect() noexcept;
 
  private:
-  const std::string mc_Address;
-  const std::uint16_t mc_Port;
+  std::string mv_Address;
+  std::uint16_t mv_Port;
 
  public:
   explicit async_connector(const async_connector& pcl_Other) noexcept = delete;

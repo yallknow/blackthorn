@@ -6,12 +6,26 @@
 
 thorn::test::tcp::async_connector::async_connector(
     const std::string_view pc_Address, const std::uint16_t pc_Port) noexcept
-    : mc_Address{pc_Address}, mc_Port{pc_Port} {
+    : mv_Address{pc_Address}, mv_Port{pc_Port} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 }
 
 thorn::test::tcp::async_connector::~async_connector() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+}
+
+void thorn::test::tcp::async_connector::mf_set_address(
+    const std::string_view pc_Address) noexcept {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  this->mv_Address = pc_Address;
+}
+
+void thorn::test::tcp::async_connector::mf_set_port(
+    const std::uint16_t pc_Port) noexcept {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  this->mv_Port = pc_Port;
 }
 
 void thorn::test::tcp::async_connector::mf_async_connect() noexcept {
@@ -22,8 +36,8 @@ void thorn::test::tcp::async_connector::mf_async_connect() noexcept {
 
   boost::system::error_code lv_ErrorCode{};
   const boost::asio::ip::tcp::endpoint lc_Endpoint{
-      boost::asio::ip::make_address(this->mc_Address, lv_ErrorCode),
-      this->mc_Port};
+      boost::asio::ip::make_address(this->mv_Address, lv_ErrorCode),
+      this->mv_Port};
 
   if (lv_ErrorCode) {
     _THORN_LIBRARY_ASYNC_LOG_ERROR_CODE_("Can't create endpoint!",

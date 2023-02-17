@@ -3,7 +3,7 @@
 #ifndef _THORN_TEST_TCP_ABSTRACT_NETWORK_UNIT_
 #define _THORN_TEST_TCP_ABSTRACT_NETWORK_UNIT_
 
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <optional>
 
 #include "../../../library/thorn_library_context.hpp"

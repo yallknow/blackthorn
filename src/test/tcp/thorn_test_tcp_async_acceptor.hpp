@@ -18,10 +18,18 @@ class async_acceptor final : public abstract::network_unit {
   /* virtual */ ~async_acceptor() noexcept override;
 
  public:
+  void mf_set_port(const std::uint16_t pc_Port) noexcept;
+
   void mf_async_accept() noexcept;
 
  private:
-  boost::asio::ip::tcp::acceptor mv_Acceptor;
+  void mf_close_acceptor() noexcept;
+
+ private:
+  std::uint16_t mv_Port;
+
+  std::optional<boost::asio::ip::tcp::acceptor> mv_OptionalAcceptor{
+      std::nullopt};
 
  public:
   explicit async_acceptor(const async_acceptor& pcl_Other) noexcept = delete;
