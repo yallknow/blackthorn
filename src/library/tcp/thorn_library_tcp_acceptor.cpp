@@ -6,8 +6,7 @@
 
 thorn::library::tcp::acceptor::acceptor(boost::asio::io_context& pl_Context,
                                         const std::uint16_t pc_Port) noexcept
-    : mv_Acceptor{pl_Context, boost::asio::ip::tcp::endpoint{
-                                  boost::asio::ip::tcp::v4(), pc_Port}} {
+    : socket_holder{pl_Context}, mv_Port{pc_Port} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 }
 
@@ -17,13 +16,44 @@ thorn::library::tcp::acceptor::~acceptor() noexcept {
   this->mf_stop();
 }
 
+void thorn::library::tcp::acceptor::mf_set_port(
+    const std::uint16_t pc_Port) noexcept {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  this->mv_Port = pc_Port;
+}
+
+void thorn::library::tcp::acceptor::mf_close_acceptor() noexcept {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  if (!this->mv_OptionalAcceptor) {
+    return;
+  }
+
+  boost::system::error_code lv_ErrorCode{};
+  this->mv_OptionalAcceptor->close(lv_ErrorCode);
+
+  if (lv_ErrorCode) {
+    _THORN_LIBRARY_LOG_WARNING_("Can't close acceptor!");
+  }
+
+  this->mv_OptionalAcceptor.reset();
+}
+
 bool thorn::library::tcp::acceptor::mpf_inner_run() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
-  this->mv_OptionalSocket.emplace(this->mv_Acceptor.get_executor());
+  this->mv_OptionalSocket.emplace(this->ml_Context);
+
+  this->mv_OptionalAcceptor.emplace(
+      this->ml_Context, boost::asio::ip::tcp::endpoint{
+                            boost::asio::ip::tcp::v4(), this->mv_Port});
 
   boost::system::error_code lv_ErrorCode{};
-  this->mv_Acceptor.accept(this->mv_OptionalSocket.value(), lv_ErrorCode);
+  this->mv_OptionalAcceptor->accept(this->mv_OptionalSocket.value(),
+                                    lv_ErrorCode);
+
+  this->mf_close_acceptor();
 
   if (lv_ErrorCode) {
     _THORN_LIBRARY_LOG_ERROR_CODE_("Can't accept!", lv_ErrorCode);
@@ -32,6 +62,12 @@ bool thorn::library::tcp::acceptor::mpf_inner_run() noexcept {
   }
 
   _THORN_LIBRARY_LOG_INFO_("Connection accepted.");
+
+  return true;
+}
+
+bool thorn::library::tcp::acceptor::mpf_inner_stop() noexcept {
+  this->mf_close_socket();
 
   return true;
 }

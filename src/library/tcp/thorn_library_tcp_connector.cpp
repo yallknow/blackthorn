@@ -7,7 +7,7 @@
 thorn::library::tcp::connector::connector(boost::asio::io_context& pl_Context,
                                           const std::string_view pc_Address,
                                           const std::uint16_t pc_Port) noexcept
-    : ml_Context{pl_Context}, mv_Address{pc_Address}, mv_Port{pc_Port} {
+    : socket_holder{pl_Context}, mv_Address{pc_Address}, mv_Port{pc_Port} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 }
 
@@ -48,6 +48,7 @@ bool thorn::library::tcp::connector::mpf_inner_run() noexcept {
   _THORN_LIBRARY_LOG_INFO_("Endpoint created.");
 
   this->mv_OptionalSocket.emplace(this->ml_Context);
+
   this->mv_OptionalSocket->connect(lc_Endpoint, lv_ErrorCode);
 
   if (lv_ErrorCode) {
@@ -57,6 +58,12 @@ bool thorn::library::tcp::connector::mpf_inner_run() noexcept {
   }
 
   _THORN_LIBRARY_LOG_INFO_("Connection established.");
+
+  return true;
+}
+
+bool thorn::library::tcp::connector::mpf_inner_stop() noexcept {
+  this->mf_close_socket();
 
   return true;
 }

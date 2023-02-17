@@ -4,7 +4,9 @@
 
 #include "../../thorn_library_preprocessor.hpp"
 
-thorn::library::tcp::abstract::socket_holder::socket_holder() noexcept {
+thorn::library::tcp::abstract::socket_holder::socket_holder(
+    boost::asio::io_context& pl_Context) noexcept
+    : ml_Context{pl_Context} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 }
 
@@ -35,11 +37,11 @@ thorn::library::tcp::abstract::socket_holder::mf_get_socket() noexcept {
   return lv_OptionalSocketHolder;
 }
 
-bool thorn::library::tcp::abstract::socket_holder::mpf_inner_stop() noexcept {
+void thorn::library::tcp::abstract::socket_holder::mf_close_socket() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   if (!this->mv_OptionalSocket) {
-    return true;
+    return;
   }
 
   boost::system::error_code lv_ErrorCode{};
@@ -50,6 +52,4 @@ bool thorn::library::tcp::abstract::socket_holder::mpf_inner_stop() noexcept {
   }
 
   this->mv_OptionalSocket.reset();
-
-  return true;
 }

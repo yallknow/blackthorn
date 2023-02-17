@@ -3,8 +3,10 @@
 #ifndef _THORN_LIBRARY_TCP_ACCEPTOR_
 #define _THORN_LIBRARY_TCP_ACCEPTOR_
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <cstdint>
+#include <optional>
 
 #include "abstract/thorn_library_tcp_abstract_socket_holder.hpp"
 
@@ -18,11 +20,21 @@ class acceptor final : public abstract::socket_holder {
                     const std::uint16_t pc_Port) noexcept;
   /* virtual */ ~acceptor() noexcept override;
 
- private:
-  bool mpf_inner_run() noexcept override;
+ public:
+  void mf_set_port(const std::uint16_t pc_Port) noexcept;
 
  private:
-  boost::asio::ip::tcp::acceptor mv_Acceptor;
+  void mf_close_acceptor() noexcept;
+
+ private:
+  bool mpf_inner_run() noexcept override;
+  bool mpf_inner_stop() noexcept override;
+
+ private:
+  std::uint16_t mv_Port;
+
+  std::optional<boost::asio::ip::tcp::acceptor> mv_OptionalAcceptor{
+      std::nullopt};
 
  public:
   explicit acceptor(const acceptor& pcl_Other) noexcept = delete;

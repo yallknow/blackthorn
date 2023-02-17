@@ -3,7 +3,7 @@
 #ifndef _THORN_LIBRARY_TCP_CONNECTOR_
 #define _THORN_LIBRARY_TCP_CONNECTOR_
 
-#include <boost/asio.hpp>
+#include <boost/asio/io_context.hpp>
 #include <cstdint>
 #include <string>
 #include <string_view>
@@ -27,9 +27,7 @@ class connector final : public abstract::socket_holder {
 
  private:
   bool mpf_inner_run() noexcept override;
-
- private:
-  boost::asio::io_context& ml_Context;
+  bool mpf_inner_stop() noexcept override;
 
  private:
   std::string mv_Address;
