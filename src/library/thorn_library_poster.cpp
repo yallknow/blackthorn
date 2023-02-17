@@ -15,5 +15,5 @@ thorn::library::poster::poster(poster&& pr_Other) noexcept
     : ml_Context{pr_Other.ml_Context}, mv_Task{std::move(pr_Other.mv_Task)} {}
 
 void thorn::library::poster::mf_cancel() noexcept {
-  this->mv_Task = []() -> void {};
+  this->mv_Task = []() noexcept -> void {};
 }

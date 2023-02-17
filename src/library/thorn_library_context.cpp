@@ -3,7 +3,7 @@
 #include "thorn_library_preprocessor.hpp"
 
 thorn::library::context::context(const std::uint32_t pc_ThreadPoolSize) noexcept
-    : mv_FocusedThreadPool{[this]() -> void {
+    : mv_FocusedThreadPool{[this]() noexcept -> void {
                              if (this->mv_Context.stopped()) {
                                this->mv_Context.restart();
                              }

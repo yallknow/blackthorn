@@ -211,7 +211,8 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_focused_thread_pool) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   thorn_test_library_test_case_abstract_runnable(
-      std::make_shared<thorn::library::focused_thread_pool>([]() -> void {}));
+      std::make_shared<thorn::library::focused_thread_pool>(
+          []() noexcept -> void {}));
 }
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_poster) {
@@ -222,7 +223,8 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_poster) {
 
   {
     thorn::library::poster lv_Poster{
-        lv_Context, [&lv_Triggered]() -> void { lv_Triggered = true; }};
+        lv_Context,
+        [&lv_Triggered]() noexcept -> void { lv_Triggered = true; }};
     // NOTE: Poster destructor will schedule work on context
   }
 

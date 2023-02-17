@@ -13,7 +13,9 @@ std::string thorn::library::time::msf_now_underscore() noexcept {
 
   std::replace_if(
       lv_TimeNow.begin(), lv_TimeNow.end(),
-      [](const char pc_Symbol) -> bool { return !std::isdigit(pc_Symbol); },
+      [](const char pc_Symbol) noexcept -> bool {
+        return !std::isdigit(pc_Symbol);
+      },
       '_');
 
   return lv_TimeNow;

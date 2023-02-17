@@ -34,7 +34,7 @@ void thorn::test::tcp::async_connector::mf_async_connect() noexcept {
 
   this->mv_OptionalSocket->async_connect(
       lc_Endpoint,
-      [this](const boost::system::error_code pc_ErrorCode) -> void {
+      [this](const boost::system::error_code pc_ErrorCode) noexcept -> void {
         _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
         if (pc_ErrorCode) {

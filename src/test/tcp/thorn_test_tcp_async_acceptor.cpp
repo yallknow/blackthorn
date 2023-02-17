@@ -24,7 +24,7 @@ void thorn::test::tcp::async_acceptor::mf_async_accept() noexcept {
 
   this->mv_Acceptor.async_accept(
       this->mv_OptionalSocket.value(),
-      [this](const boost::system::error_code pc_ErrorCode) -> void {
+      [this](const boost::system::error_code pc_ErrorCode) noexcept -> void {
         _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
         if (pc_ErrorCode) {
