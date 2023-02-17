@@ -15,7 +15,7 @@ class poster final {
                   const std::function<void()>& pcl_Task) noexcept;
   /* virtual */ ~poster() noexcept;
 
-  explicit poster(const poster& pcl_Other) noexcept;
+ public:
   explicit poster(poster&& pr_Other) noexcept;
 
  public:
@@ -26,6 +26,9 @@ class poster final {
 
  private:
   std::function<void()> mv_Task;
+
+ public:
+  explicit poster(const poster& pcl_Other) noexcept = delete;
 
  public:
   poster& operator=(const poster& pcl_Other) noexcept = delete;
