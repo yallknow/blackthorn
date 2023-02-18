@@ -5,10 +5,14 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/test/included/unit_test.hpp>
+#include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <thread>
+#include <vector>
 
 #include "../library/abstract/thorn_library_abstract_runnable.hpp"
 #include "../library/tcp/abstract/thorn_library_tcp_abstract_socket_holder.hpp"
@@ -20,6 +24,7 @@
 #include "../library/thorn_library_logger.hpp"
 #include "../library/thorn_library_poster.hpp"
 #include "../library/thorn_library_preprocessor.hpp"
+#include "../library/thorn_library_safe_deque.hpp"
 #include "tcp/thorn_test_tcp_async_acceptor.hpp"
 #include "tcp/thorn_test_tcp_async_connector.hpp"
 #include "thorn_test_fixture.hpp"
@@ -245,6 +250,104 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_poster) {
   lv_Context.run();
 
   BOOST_CHECK(lv_IsTriggered);
+}
+
+BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_safe_deque) {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  const std::vector<int> lc_TestCollection{1, 2, 3, 4, 5};
+
+  thorn::library::safe_deque<std::shared_ptr<int>> lv_SafeDeque{};
+
+  // NOTE: Test for correct data order with push_back
+  auto lv_FillFunctionBack = [&lc_TestCollection,
+                              &lv_SafeDeque]() noexcept -> void {
+    for (const int lc_Number : lc_TestCollection) {
+      lv_SafeDeque.mf_push_back(std::make_shared<int>(lc_Number));
+    }
+  };
+
+  lv_FillFunctionBack();
+
+  for (const int lc_Number : lc_TestCollection) {
+    BOOST_CHECK(*lv_SafeDeque.mf_pop_front() == lc_Number);
+  }
+
+  // NOTE: Test for correct data order with push_front
+  auto lv_FillFunctionFront = [&lc_TestCollection,
+                               &lv_SafeDeque]() noexcept -> void {
+    for (const int lc_Number : lc_TestCollection) {
+      lv_SafeDeque.mf_push_front(std::make_shared<int>(lc_Number));
+    }
+  };
+
+  lv_FillFunctionFront();
+
+  for (const int lc_Number : lc_TestCollection) {
+    BOOST_CHECK(*lv_SafeDeque.mf_pop_back() == lc_Number);
+  }
+
+  // NOTE: Safe deque fill test with delay
+  const std::chrono::nanoseconds lc_FillTestDelay{100'000'000};  // 0.1s
+  const std::chrono::nanoseconds lc_FillTestDelta{50'000'000};   // 0.05s
+
+  std::thread lv_Filler{
+      [&lc_TestCollection, &lv_SafeDeque, lc_FillTestDelay]() noexcept -> void {
+        for (const int lc_Number : lc_TestCollection) {
+          std::this_thread::sleep_for(lc_FillTestDelay);
+
+          lv_SafeDeque.mf_push_back(std::make_shared<int>(lc_Number));
+        }
+      }};
+
+  const std::chrono::steady_clock::time_point lc_StartFillTestTime{
+      std::chrono::high_resolution_clock::now()};
+
+  // NOTE: mf_pop_front() call on an object to be filled (filled pointer)
+  BOOST_CHECK(lv_SafeDeque.mf_pop_front());
+
+  const std::chrono::nanoseconds lc_FillTestTook{
+      std::chrono::high_resolution_clock::now() - lc_StartFillTestTime};
+
+  BOOST_CHECK(std::abs((lc_FillTestTook - lc_FillTestDelay).count()) <
+              lc_FillTestDelta.count());
+
+  if (lv_Filler.joinable()) {
+    lv_Filler.join();
+  }
+
+  // NOTE: Next test requires the deque to be empty
+  lv_SafeDeque.mf_clear();
+
+  // NOTE: Safe deque terminate test with delay
+  const std::chrono::nanoseconds lc_TerminateTestDelay{100'000'000};  // 0.1s
+  const std::chrono::nanoseconds lc_TerminateTestDelta{50'000'000};   // 0.05s
+
+  std::thread lv_Terminator{
+      [&lv_SafeDeque, lc_TerminateTestDelay]() noexcept -> void {
+        std::this_thread::sleep_for(lc_TerminateTestDelay);
+
+        lv_SafeDeque.mf_terminate();
+      }};
+
+  const std::chrono::steady_clock::time_point lc_StartTerminateTestTime{
+      std::chrono::high_resolution_clock::now()};
+
+  // NOTE: mf_pop_front() call on an object to be terminated (empty pointer)
+  BOOST_CHECK(!lv_SafeDeque.mf_pop_front());
+
+  const std::chrono::nanoseconds lc_TerminateTestTook{
+      std::chrono::high_resolution_clock::now() - lc_StartTerminateTestTime};
+
+  BOOST_CHECK(std::abs((lc_TerminateTestTook - lc_TerminateTestDelay).count()) <
+              lc_TerminateTestDelta.count());
+
+  if (lv_Terminator.joinable()) {
+    lv_Terminator.join();
+  }
+
+  // NOTE: mf_pop_front() call on a terminated object (empty pointer)
+  BOOST_CHECK(!lv_SafeDeque.mf_pop_front());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
