@@ -27,11 +27,11 @@ thorn::library::log_builder::log_builder(
 }
 
 thorn::library::log_builder::~log_builder() noexcept {
-  const std::chrono::nanoseconds lc_TookNS{
+  const std::chrono::nanoseconds lc_Took{
       std::chrono::high_resolution_clock::now() - this->mc_StartTime};
 
   const std::string lc_Footer{
-      " ], \"took(ns)\": " + std::to_string(lc_TookNS.count()) + " }"};
+      " ], \"took(ns)\": " + std::to_string(lc_Took.count()) + " }"};
 
   logger::msf_log(lc_Footer);
 

@@ -232,18 +232,19 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_focused_thread_pool) {
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_poster) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
-  bool lv_Triggered{false};
+  bool lv_IsTriggered{false};
   boost::asio::io_context lv_Context{};
 
   {
     thorn::library::poster lv_Poster{
         lv_Context,
-        [&lv_Triggered]() noexcept -> void { lv_Triggered = true; }};
+        [&lv_IsTriggered]() noexcept -> void { lv_IsTriggered = true; }};
     // NOTE: Poster destructor will schedule work on context
   }
 
   lv_Context.run();
-  BOOST_CHECK(lv_Triggered);
+
+  BOOST_CHECK(lv_IsTriggered);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
