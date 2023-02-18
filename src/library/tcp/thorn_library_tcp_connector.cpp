@@ -63,6 +63,8 @@ bool thorn::library::tcp::connector::mpf_inner_run() noexcept {
 }
 
 bool thorn::library::tcp::connector::mpf_inner_stop() noexcept {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
   this->mf_close_socket();
 
   return true;

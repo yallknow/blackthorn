@@ -67,6 +67,8 @@ bool thorn::library::tcp::acceptor::mpf_inner_run() noexcept {
 }
 
 bool thorn::library::tcp::acceptor::mpf_inner_stop() noexcept {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
   this->mf_close_socket();
 
   return true;
