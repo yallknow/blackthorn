@@ -21,7 +21,7 @@ class safe_deque final {
 
  public:
   void mf_push_back(const T& pcl_Item) noexcept {
-    _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     {
       const std::unique_lock<std::mutex> lc_lock(this->mv_Mutex);
@@ -32,7 +32,7 @@ class safe_deque final {
   }
 
   void mf_push_front(const T& pcl_Item) noexcept {
-    _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     {
       const std::unique_lock<std::mutex> lc_lock(this->mv_Mutex);
@@ -43,12 +43,12 @@ class safe_deque final {
   }
 
   T mf_pop_back() noexcept {
-    _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     std::unique_lock<std::mutex> lv_lock(this->mv_Mutex);
 
     this->mv_ConditionVariable.wait(lv_lock, [this]() noexcept -> bool {
-      _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
       return !this->mv_Deque.empty() || this->mv_IsTerminated;
     });
@@ -64,12 +64,12 @@ class safe_deque final {
   }
 
   T mf_pop_front() noexcept {
-    _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     std::unique_lock<std::mutex> lv_lock(this->mv_Mutex);
 
     this->mv_ConditionVariable.wait(lv_lock, [this]() noexcept -> bool {
-      _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
       return !this->mv_Deque.empty() || this->mv_IsTerminated;
     });
@@ -85,14 +85,14 @@ class safe_deque final {
   }
 
   void mf_clear() noexcept {
-    _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     const std::unique_lock<std::mutex> lc_lock(this->mv_Mutex);
     this->mv_Deque.clear();
   }
 
   void mf_terminate() noexcept {
-    _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     this->mv_IsTerminated = true;
 
