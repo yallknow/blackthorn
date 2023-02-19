@@ -4,6 +4,8 @@
 
 thorn::library::context::context(const std::uint32_t pc_ThreadPoolSize) noexcept
     : mv_FocusedThreadPool{[this]() noexcept -> void {
+                             _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
                              if (this->mv_Context.stopped()) {
                                this->mv_Context.restart();
                              }

@@ -231,7 +231,9 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_focused_thread_pool) {
 
   thorn_test_library_test_case_abstract_runnable(
       std::make_shared<thorn::library::focused_thread_pool>(
-          []() noexcept -> void {}));
+          []() noexcept -> void {
+            _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+          }));
 }
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_poster) {
@@ -242,8 +244,11 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_poster) {
 
   {
     thorn::library::poster lv_Poster{
-        lv_Context,
-        [&lv_IsTriggered]() noexcept -> void { lv_IsTriggered = true; }};
+        lv_Context, [&lv_IsTriggered]() noexcept -> void {
+          _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+          lv_IsTriggered = true;
+        }};
     // NOTE: Poster destructor will schedule work on context
   }
 
@@ -262,6 +267,8 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_safe_deque) {
   // NOTE: Test for correct data order with push_back
   auto lv_FillFunctionBack = [&lc_TestCollection,
                               &lv_SafeDeque]() noexcept -> void {
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
     for (const int lc_Number : lc_TestCollection) {
       lv_SafeDeque.mf_push_back(std::make_shared<int>(lc_Number));
     }
@@ -276,6 +283,8 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_safe_deque) {
   // NOTE: Test for correct data order with push_front
   auto lv_FillFunctionFront = [&lc_TestCollection,
                                &lv_SafeDeque]() noexcept -> void {
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
     for (const int lc_Number : lc_TestCollection) {
       lv_SafeDeque.mf_push_front(std::make_shared<int>(lc_Number));
     }
@@ -293,6 +302,8 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_safe_deque) {
 
   std::thread lv_Filler{
       [&lc_TestCollection, &lv_SafeDeque, lc_FillTestDelay]() noexcept -> void {
+        _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
         for (const int lc_Number : lc_TestCollection) {
           std::this_thread::sleep_for(lc_FillTestDelay);
 
@@ -325,6 +336,8 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_safe_deque) {
 
   std::thread lv_Terminator{
       [&lv_SafeDeque, lc_TerminateTestDelay]() noexcept -> void {
+        _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
         std::this_thread::sleep_for(lc_TerminateTestDelay);
 
         lv_SafeDeque.mf_terminate();
