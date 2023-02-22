@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <thread>
 #include <vector>
@@ -22,9 +23,11 @@
 #include "../library/thorn_library_focused_thread_pool.hpp"
 #include "../library/thorn_library_log_builder.hpp"
 #include "../library/thorn_library_logger.hpp"
+#include "../library/thorn_library_message_header.hpp"
 #include "../library/thorn_library_poster.hpp"
 #include "../library/thorn_library_preprocessor.hpp"
 #include "../library/thorn_library_safe_deque.hpp"
+#include "../library/thorn_library_string_cast.hpp"
 #include "tcp/thorn_test_tcp_async_acceptor.hpp"
 #include "tcp/thorn_test_tcp_async_connector.hpp"
 #include "thorn_test_fixture.hpp"
@@ -362,6 +365,29 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_safe_deque) {
 
   // NOTE: mf_pop_front() call on a terminated object (empty pointer)
   BOOST_CHECK(!lv_SafeDeque.mf_pop_front());
+}
+
+BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_string_cast) {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  const thorn::library::message_header lc_MessageHeaderToConvert{1u, 1u, 1u};
+
+  const std::string lc_ConvertedMessageHeader{
+      thorn::library::string_cast<thorn::library::message_header>::
+          msf_make_string(lc_MessageHeaderToConvert)};
+
+  const thorn::library::message_header lc_MessageHeaderResult{
+      thorn::library::string_cast<thorn::library::message_header>::
+          msf_make_value(lc_ConvertedMessageHeader)};
+
+  BOOST_CHECK(lc_MessageHeaderToConvert.mc_Code ==
+              lc_MessageHeaderResult.mc_Code);
+
+  BOOST_CHECK(lc_MessageHeaderToConvert.mc_Flags ==
+              lc_MessageHeaderResult.mc_Flags);
+
+  BOOST_CHECK(lc_MessageHeaderToConvert.mc_BodySize ==
+              lc_MessageHeaderResult.mc_BodySize);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
