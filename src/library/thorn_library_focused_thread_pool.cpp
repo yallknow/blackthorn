@@ -8,10 +8,11 @@ thorn::library::focused_thread_pool::focused_thread_pool(
     : mc_Task{pcl_Task}, mv_ThreadPoolSize{pc_ThreadPoolSize} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
-  if (!this->mv_ThreadPoolSize) {
+  constexpr std::uint32_t lc_DefaultThreadPoolSize{2u};
+
+  if (this->mv_ThreadPoolSize < lc_DefaultThreadPoolSize) {
     _THORN_LIBRARY_LOG_WARNING_("Applying the default thread pool size!");
 
-    constexpr std::uint32_t lc_DefaultThreadPoolSize{2u};
     this->mv_ThreadPoolSize = lc_DefaultThreadPoolSize;
   }
 }
