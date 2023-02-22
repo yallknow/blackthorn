@@ -22,7 +22,7 @@ class network_unit /* final */ {
   void mf_close_socket() noexcept;
 
  protected:
-  thorn::library::context mv_Context{1u};
+  thorn::library::context mv_Context{};
 
   std::optional<boost::asio::ip::tcp::socket> mv_OptionalSocket{std::nullopt};
 

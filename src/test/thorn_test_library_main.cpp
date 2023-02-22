@@ -95,54 +95,55 @@ BOOST_AUTO_TEST_SUITE(thorn_test_library_test_suite,
                       *boost::unit_test::fixture<thorn::test::fixture>())
 
 void thorn_test_library_test_case_abstract_runnable(
-    std::shared_ptr<thorn::library::abstract::runnable> pp_RunnableClass) {
+    const std::shared_ptr<thorn::library::abstract::runnable>
+        pcp_RunnableClass) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   // NOTE: Object is valid
-  BOOST_CHECK(pp_RunnableClass);
+  BOOST_CHECK(pcp_RunnableClass);
 
   // NOTE: Object is not running from the start
-  BOOST_CHECK(!pp_RunnableClass->mf_is_running());
+  BOOST_CHECK(!pcp_RunnableClass->mf_is_running());
 
   // NOTE: mf_run() call on a non-running object
-  pp_RunnableClass->mf_run();
-  BOOST_CHECK(pp_RunnableClass->mf_is_running());
+  pcp_RunnableClass->mf_run();
+  BOOST_CHECK(pcp_RunnableClass->mf_is_running());
 
   // NOTE: mf_run() call on a running object
-  pp_RunnableClass->mf_run();
-  BOOST_CHECK(pp_RunnableClass->mf_is_running());
+  pcp_RunnableClass->mf_run();
+  BOOST_CHECK(pcp_RunnableClass->mf_is_running());
 
   // NOTE: mf_stop() call on a running object
-  pp_RunnableClass->mf_stop();
-  BOOST_CHECK(!pp_RunnableClass->mf_is_running());
+  pcp_RunnableClass->mf_stop();
+  BOOST_CHECK(!pcp_RunnableClass->mf_is_running());
 
   // NOTE: mf_stop() call on a non-running object
-  pp_RunnableClass->mf_stop();
-  BOOST_CHECK(!pp_RunnableClass->mf_is_running());
+  pcp_RunnableClass->mf_stop();
+  BOOST_CHECK(!pcp_RunnableClass->mf_is_running());
 
   // NOTE: Restarting an object
-  pp_RunnableClass->mf_run();
-  BOOST_CHECK(pp_RunnableClass->mf_is_running());
+  pcp_RunnableClass->mf_run();
+  BOOST_CHECK(pcp_RunnableClass->mf_is_running());
 
   // NOTE: Stopping a restarted Object
-  pp_RunnableClass->mf_stop();
-  BOOST_CHECK(!pp_RunnableClass->mf_is_running());
+  pcp_RunnableClass->mf_stop();
+  BOOST_CHECK(!pcp_RunnableClass->mf_is_running());
 };
 
 void thorn_test_library_test_case_tcp_abstract_socket_holder(
-    std::shared_ptr<thorn::library::tcp::abstract::socket_holder>
-        pp_SocketHolderClass) {
+    const std::shared_ptr<thorn::library::tcp::abstract::socket_holder>
+        pcp_SocketHolderClass) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   // NOTE: Object is valid
-  BOOST_CHECK(pp_SocketHolderClass);
+  BOOST_CHECK(pcp_SocketHolderClass);
 
   // NOTE: Object is running from the start
-  BOOST_CHECK(pp_SocketHolderClass->mf_is_running());
+  BOOST_CHECK(pcp_SocketHolderClass->mf_is_running());
 
   // NOTE: mf_get_socket() call on a running object
   std::optional<boost::asio::ip::tcp::socket> lv_OptionalSocket{
-      pp_SocketHolderClass->mf_get_socket()};
+      pcp_SocketHolderClass->mf_get_socket()};
 
   BOOST_CHECK(lv_OptionalSocket);
 
@@ -154,13 +155,13 @@ void thorn_test_library_test_case_tcp_abstract_socket_holder(
   lv_OptionalSocket.reset();
 
   // NOTE: Object is no longer running
-  BOOST_CHECK(!pp_SocketHolderClass->mf_is_running());
+  BOOST_CHECK(!pcp_SocketHolderClass->mf_is_running());
 
   // NOTE: mf_get_socket() call on a non-running object
-  BOOST_CHECK(!pp_SocketHolderClass->mf_get_socket());
+  BOOST_CHECK(!pcp_SocketHolderClass->mf_get_socket());
 };
 
-BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_acceptor) {
+BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_acceptor) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   boost::asio::io_context lv_Context{};
@@ -184,7 +185,7 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_acceptor) {
   thorn_test_library_test_case_tcp_abstract_socket_holder(lp_Acceptor);
 }
 
-BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_connector) {
+BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_connector) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   boost::asio::io_context lv_Context{};
