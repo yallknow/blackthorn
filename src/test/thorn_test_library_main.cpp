@@ -18,11 +18,13 @@
 #include "../library/abstract/thorn_library_abstract_runnable.hpp"
 #include "../library/tcp/abstract/thorn_library_tcp_abstract_socket_holder.hpp"
 #include "../library/tcp/thorn_library_tcp_acceptor.hpp"
+#include "../library/tcp/thorn_library_tcp_communicator.hpp"
 #include "../library/tcp/thorn_library_tcp_connector.hpp"
 #include "../library/thorn_library_context.hpp"
 #include "../library/thorn_library_focused_thread_pool.hpp"
 #include "../library/thorn_library_log_builder.hpp"
 #include "../library/thorn_library_logger.hpp"
+#include "../library/thorn_library_message.hpp"
 #include "../library/thorn_library_message_header.hpp"
 #include "../library/thorn_library_poster.hpp"
 #include "../library/thorn_library_preprocessor.hpp"
@@ -186,6 +188,133 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_acceptor) {
   lp_Acceptor->mf_run();
 
   thorn_test_library_test_case_tcp_abstract_socket_holder(lp_Acceptor);
+}
+
+BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_communicator) {
+  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+
+  // NOTE: Configuring contexts
+  thorn::library::context lv_AliceContext{2u};
+  thorn::library::context lv_BobContext{2u};
+
+  lv_AliceContext.mf_run();
+  lv_BobContext.mf_run();
+
+  BOOST_CHECK(lv_AliceContext.mf_is_running() && lv_BobContext.mf_is_running());
+
+  // NOTE: Configuring two connected sockets
+  constexpr std::string_view lc_Address{"127.0.0.1"};
+  constexpr std::uint16_t lc_Port{15050};
+
+  thorn::library::tcp::acceptor lv_Acceptor{lv_AliceContext.mf_get_context(),
+                                            lc_Port};
+  thorn::library::tcp::connector lv_Connector{lv_BobContext.mf_get_context(),
+                                              lc_Address, lc_Port};
+
+  std::thread lv_AcceptorThread{[&lv_Acceptor]() noexcept -> void {
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+    lv_Acceptor.mf_run();
+  }};
+
+  lv_Connector.mf_run();
+
+  lv_AcceptorThread.join();
+
+  // NOTE: Acceptor and connector must have open sockets
+  BOOST_CHECK(lv_Acceptor.mf_is_running() && lv_Connector.mf_is_running());
+
+  // NOTE: Configuring communicators
+  thorn::library::tcp::communicator lv_Alice{lv_AliceContext.mf_get_context(),
+                                             *lv_Acceptor.mf_get_socket()};
+  thorn::library::tcp::communicator lv_Bob{lv_BobContext.mf_get_context(),
+                                           *lv_Connector.mf_get_socket()};
+
+  lv_Alice.mf_run();
+  lv_Bob.mf_run();
+
+  // NOTE: Communicators must be running
+  BOOST_CHECK(lv_Alice.mf_is_running() && lv_Bob.mf_is_running());
+
+  // NOTE: Acceptor and connector should no longer run
+  BOOST_CHECK(!lv_Acceptor.mf_is_running() && !lv_Connector.mf_is_running());
+
+  // NOTE: Creation of the test messages
+  constexpr std::uint16_t lc_AliceMessageCode{1};
+  constexpr std::uint16_t lc_AliceMessageFlags{1};
+  constexpr std::string_view lc_AliceMessage{"0123456789"};
+
+  const std::shared_ptr<thorn::library::message> lcp_AliceSent{
+      std::make_shared<thorn::library::message>(
+          thorn::library::message_header{
+              lc_AliceMessageCode, lc_AliceMessageFlags,
+              static_cast<std::uint32_t>(lc_AliceMessage.size())},
+          lc_AliceMessage.data())};
+
+  constexpr std::uint16_t lc_BobMessageCode{2};
+  constexpr std::uint16_t lc_BobMessageFlags{2};
+  constexpr std::string_view lc_BobMessage{"9876543210"};
+
+  const std::shared_ptr<thorn::library::message> lcp_BobSent{
+      std::make_shared<thorn::library::message>(
+          thorn::library::message_header{
+              lc_BobMessageCode, lc_BobMessageFlags,
+              static_cast<std::uint32_t>(lc_BobMessage.size())},
+          lc_BobMessage.data())};
+
+  // NOTE: Exchange of test messages
+  lv_Alice.mf_push_back(lcp_AliceSent);
+
+  const std::shared_ptr<thorn::library::message> lcp_BobReceived{
+      lv_Bob.mf_pop_front()};
+
+  // NOTE: The received message must not be empty
+  BOOST_CHECK(lcp_BobReceived);
+
+  // NOTE: The received message must match the one sent
+  BOOST_CHECK(lcp_AliceSent->mc_Header.mc_Code ==
+                  lcp_BobReceived->mc_Header.mc_Code &&
+              lcp_AliceSent->mc_Header.mc_Flags ==
+                  lcp_BobReceived->mc_Header.mc_Flags &&
+              lcp_AliceSent->mc_Header.mc_BodySize ==
+                  lcp_BobReceived->mc_Header.mc_BodySize &&
+              lcp_AliceSent->mv_Body == lcp_BobReceived->mv_Body);
+
+  lv_Bob.mf_push_back(lcp_BobSent);
+
+  const std::shared_ptr<thorn::library::message> lcp_AliceReceived{
+      lv_Alice.mf_pop_front()};
+
+  // NOTE: The received message must not be empty
+  BOOST_CHECK(lcp_AliceReceived);
+
+  // NOTE: The received message must match the one sent
+  BOOST_CHECK(lcp_BobSent->mc_Header.mc_Code ==
+                  lcp_AliceReceived->mc_Header.mc_Code &&
+              lcp_BobSent->mc_Header.mc_Flags ==
+                  lcp_AliceReceived->mc_Header.mc_Flags &&
+              lcp_BobSent->mc_Header.mc_BodySize ==
+                  lcp_AliceReceived->mc_Header.mc_BodySize &&
+              lcp_BobSent->mv_Body == lcp_AliceReceived->mv_Body);
+
+  lv_Alice.mf_stop();
+  lv_Bob.mf_stop();
+
+  // NOTE: Communicators should no longer run
+  BOOST_CHECK(!lv_Alice.mf_is_running() && !lv_Bob.mf_is_running());
+
+  lv_AliceContext.mf_stop();
+  lv_BobContext.mf_stop();
+
+  // NOTE: Contexts should no longer run
+  BOOST_CHECK(!lv_AliceContext.mf_is_running() &&
+              !lv_BobContext.mf_is_running());
+
+  lv_Alice.mf_run();
+  lv_Bob.mf_run();
+
+  // NOTE: Communicators cannot be restarted without settings new open sockets
+  BOOST_CHECK(!lv_Alice.mf_is_running() && !lv_Bob.mf_is_running());
 }
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_connector) {
