@@ -3,7 +3,6 @@
 #ifndef _THORN_LIBRARY_TCP_ABSTRACT_SOCKET_HOLDER_
 #define _THORN_LIBRARY_TCP_ABSTRACT_SOCKET_HOLDER_
 
-#include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <optional>
 
@@ -16,18 +15,12 @@ namespace abstract {
 
 class socket_holder /* final */ : public thorn::library::abstract::runnable {
  public:
-  explicit socket_holder(boost::asio::io_context& pl_Context) noexcept;
+  explicit socket_holder() noexcept;
   virtual ~socket_holder() noexcept override;
-
- public:
-  std::optional<boost::asio::ip::tcp::socket> mf_get_socket() noexcept;
 
  protected:
   // NOTE: Must be called in a derived class mf_inner_stop method
   void mf_close_socket() noexcept;
-
- protected:
-  boost::asio::io_context& ml_Context;
 
  protected:
   std::optional<boost::asio::ip::tcp::socket> mv_OptionalSocket{std::nullopt};

@@ -15,9 +15,7 @@
 thorn::library::tcp::communicator::communicator(
     boost::asio::io_context& pl_Context,
     boost::asio::ip::tcp::socket&& pr_Socket) noexcept
-    : socket_holder{pl_Context},
-      mv_ReadStrand{pl_Context},
-      mv_WriteStrand{pl_Context} {
+    : mv_ReadStrand{pl_Context}, mv_WriteStrand{pl_Context} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   this->mv_OptionalSocket.emplace(std::move(pr_Socket));

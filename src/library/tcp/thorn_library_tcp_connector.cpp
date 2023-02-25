@@ -7,7 +7,7 @@
 thorn::library::tcp::connector::connector(boost::asio::io_context& pl_Context,
                                           const std::string_view pc_Address,
                                           const std::uint16_t pc_Port) noexcept
-    : socket_holder{pl_Context}, mv_Address{pc_Address}, mv_Port{pc_Port} {
+    : socket_supplier{pl_Context, pc_Address, pc_Port} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 }
 
@@ -15,20 +15,6 @@ thorn::library::tcp::connector::~connector() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   this->mf_stop();
-}
-
-void thorn::library::tcp::connector::mf_set_address(
-    const std::string_view pc_Address) noexcept {
-  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
-
-  this->mv_Address = pc_Address;
-}
-
-void thorn::library::tcp::connector::mf_set_port(
-    const std::uint16_t pc_Port) noexcept {
-  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
-
-  this->mv_Port = pc_Port;
 }
 
 bool thorn::library::tcp::connector::mpf_inner_run() noexcept {

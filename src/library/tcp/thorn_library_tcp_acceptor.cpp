@@ -5,8 +5,9 @@
 #include "../thorn_library_preprocessor.hpp"
 
 thorn::library::tcp::acceptor::acceptor(boost::asio::io_context& pl_Context,
+                                        const std::string_view pc_Address,
                                         const std::uint16_t pc_Port) noexcept
-    : socket_holder{pl_Context}, mv_Port{pc_Port} {
+    : socket_supplier{pl_Context, pc_Address, pc_Port} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 }
 
@@ -14,13 +15,6 @@ thorn::library::tcp::acceptor::~acceptor() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   this->mf_stop();
-}
-
-void thorn::library::tcp::acceptor::mf_set_port(
-    const std::uint16_t pc_Port) noexcept {
-  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
-
-  this->mv_Port = pc_Port;
 }
 
 void thorn::library::tcp::acceptor::mf_close_acceptor() noexcept {
