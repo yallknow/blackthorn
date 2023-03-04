@@ -4,6 +4,10 @@ project(blackthorn)
 
 set(CMAKE_CXX_STANDARD 20)
 
+if (WIN32)
+  add_definitions(-D_WIN32_WINNT=0x0A00)
+endif()
+
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
