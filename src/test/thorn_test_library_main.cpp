@@ -135,20 +135,20 @@ void thorn_test_library_test_case_abstract_runnable(
   BOOST_CHECK(!pcp_RunnableClass->mf_is_running());
 };
 
-void thorn_test_library_test_case_tcp_abstract_socket_holder(
-    const std::shared_ptr<thorn::library::tcp::abstract::socket_holder>
-        pcp_SocketHolderClass) {
+void thorn_test_library_test_case_tcp_abstract_socket_supplier(
+    const std::shared_ptr<thorn::library::tcp::abstract::socket_supplier>
+        pcp_SocketSupplierClass) {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   // NOTE: Object is valid
-  BOOST_CHECK(pcp_SocketHolderClass);
+  BOOST_CHECK(pcp_SocketSupplierClass);
 
   // NOTE: Object is running from the start
-  BOOST_CHECK(pcp_SocketHolderClass->mf_is_running());
+  BOOST_CHECK(pcp_SocketSupplierClass->mf_is_running());
 
   // NOTE: mf_get_socket() call on a running object
   std::optional<boost::asio::ip::tcp::socket> lv_OptionalSocket{
-      pcp_SocketHolderClass->mf_get_socket()};
+      pcp_SocketSupplierClass->mf_get_socket()};
 
   BOOST_CHECK(lv_OptionalSocket);
 
@@ -160,10 +160,10 @@ void thorn_test_library_test_case_tcp_abstract_socket_holder(
   lv_OptionalSocket.reset();
 
   // NOTE: Object is no longer running
-  BOOST_CHECK(!pcp_SocketHolderClass->mf_is_running());
+  BOOST_CHECK(!pcp_SocketSupplierClass->mf_is_running());
 
   // NOTE: mf_get_socket() call on a non-running object
-  BOOST_CHECK(!pcp_SocketHolderClass->mf_get_socket());
+  BOOST_CHECK(!pcp_SocketSupplierClass->mf_get_socket());
 };
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_acceptor) {
@@ -180,14 +180,15 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_acceptor) {
   lv_AsyncConnector.mf_async_connect();
 
   std::shared_ptr<thorn::library::tcp::acceptor> lp_Acceptor{
-      std::make_shared<thorn::library::tcp::acceptor>(lv_Context, lc_Port)};
+      std::make_shared<thorn::library::tcp::acceptor>(lv_Context, lc_Addres,
+                                                      lc_Port)};
 
   thorn_test_library_test_case_abstract_runnable(lp_Acceptor);
 
   // NOTE: Next test requires the acceptor to be running from the start
   lp_Acceptor->mf_run();
 
-  thorn_test_library_test_case_tcp_abstract_socket_holder(lp_Acceptor);
+  thorn_test_library_test_case_tcp_abstract_socket_supplier(lp_Acceptor);
 }
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_communicator) {
@@ -207,7 +208,7 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_communicator) {
   constexpr std::uint16_t lc_Port{15050};
 
   thorn::library::tcp::acceptor lv_Acceptor{lv_AliceContext.mf_get_context(),
-                                            lc_Port};
+                                            lc_Address, lc_Port};
   thorn::library::tcp::connector lv_Connector{lv_BobContext.mf_get_context(),
                                               lc_Address, lc_Port};
 
@@ -339,7 +340,7 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_connector) {
   // NOTE: Next test requires the connector to be running from the start
   lp_Connector->mf_run();
 
-  thorn_test_library_test_case_tcp_abstract_socket_holder(lp_Connector);
+  thorn_test_library_test_case_tcp_abstract_socket_supplier(lp_Connector);
 }
 
 BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_context) {
