@@ -4,8 +4,12 @@
 #define _THORN_LIBRARY_TCP_ABSTRACT_NODE_
 
 #include <boost/asio/io_context.hpp>
+#include <cstdint>
 #include <memory>
 #include <optional>
+#include <string>
+#include <string_view>
+#include <thread>
 
 #include "../../abstract/thorn_library_abstract_runnable.hpp"
 #include "../../thorn_library_context.hpp"
@@ -19,7 +23,9 @@ namespace abstract {
 
 class node /* final */ : public thorn::library::abstract::runnable {
  public:
-  explicit node() noexcept;
+  explicit node(const std::string_view pc_Address, const std::uint16_t pc_Port,
+                const std::uint32_t pc_ThreadPoolSize =
+                    std::thread::hardware_concurrency()) noexcept;
   virtual ~node() noexcept override;
 
  private:
@@ -28,14 +34,18 @@ class node /* final */ : public thorn::library::abstract::runnable {
 
  protected:
   virtual void mpf_emplace_socket_supplier(
-      boost::asio::io_context& pl_Context) noexcept = 0;
+      boost::asio::io_context& pl_Context, const std::string_view pc_Address,
+      const std::uint16_t pc_Port) noexcept = 0;
 
  private:
+  const std::string mc_Address;
+  const std::uint16_t mc_Port;
+  const std::uint32_t mc_ThreadPoolSize;
+
+ protected:
   std::optional<thorn::library::context> mv_OptionalContext{std::nullopt};
   std::optional<thorn::library::tcp::communicator> mv_OptionalCommunicator{
       std::nullopt};
-
- protected:
   std::unique_ptr<socket_supplier> mp_SocketSupplier{nullptr};
 
  public:
