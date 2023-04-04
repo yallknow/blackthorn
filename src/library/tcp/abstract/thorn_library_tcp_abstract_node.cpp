@@ -1,5 +1,7 @@
 #include "thorn_library_tcp_abstract_node.hpp"
 
+#include <boost/asio/post.hpp>
+
 #include "../../thorn_library_preprocessor.hpp"
 
 thorn::library::tcp::abstract::node::node(
@@ -15,6 +17,19 @@ thorn::library::tcp::abstract::node::~node() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   this->mf_stop();
+}
+
+void thorn::library::tcp::abstract::node::mf_loop() noexcept {
+  _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+  this->mpf_inner_loop();
+
+  boost::asio::post(this->mv_OptionalContext->mf_get_context(),
+                    [this]() noexcept -> void {
+                      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+                      this->mf_loop();
+                    });
 }
 
 bool thorn::library::tcp::abstract::node::mpf_inner_run() noexcept {
@@ -50,6 +65,13 @@ bool thorn::library::tcp::abstract::node::mpf_inner_run() noexcept {
 
     return false;
   }
+
+  boost::asio::post(this->mv_OptionalContext->mf_get_context(),
+                    [this]() noexcept -> void {
+                      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+                      this->mf_loop();
+                    });
 
   return true;
 }

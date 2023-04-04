@@ -29,6 +29,9 @@ class node /* final */ : public thorn::library::abstract::runnable {
   virtual ~node() noexcept override;
 
  private:
+  void mf_loop() noexcept;
+
+ private:
   bool mpf_inner_run() noexcept override;
   bool mpf_inner_stop() noexcept override;
 
@@ -36,6 +39,8 @@ class node /* final */ : public thorn::library::abstract::runnable {
   virtual void mpf_emplace_socket_supplier(
       boost::asio::io_context& pl_Context, const std::string_view pc_Address,
       const std::uint16_t pc_Port) noexcept = 0;
+
+  virtual void mpf_inner_loop() noexcept = 0;
 
  private:
   const std::string mc_Address;
