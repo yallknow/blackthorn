@@ -88,8 +88,8 @@ void thorn::library::log_builder::msf_async_log(
                         pc_Message.data()};
 
   if (pc_ErrorCode) {
-    lv_Record += " (" + std::to_string(pc_ErrorCode.value()) + " : " +
-                 pc_ErrorCode.what() + ")";
+    lv_Record +=
+        " (" + pc_ErrorCode.to_string() + " : " + pc_ErrorCode.message() + ')';
   }
 
   logger::msf_async_log(lv_Record + "\" }");
@@ -121,8 +121,8 @@ std::string thorn::library::log_builder::msf_create_body(
   lv_Body += pc_Message;
 
   if (pc_ErrorCode) {
-    lv_Body += " (" + std::to_string(pc_ErrorCode.value()) + " : " +
-               pc_ErrorCode.what() + ")";
+    lv_Body +=
+        " (" + pc_ErrorCode.to_string() + " : " + pc_ErrorCode.message() + ')';
   }
 
   lv_Body += "\" }";
