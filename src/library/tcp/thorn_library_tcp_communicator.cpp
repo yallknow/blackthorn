@@ -234,11 +234,11 @@ bool thorn::library::tcp::communicator::mpf_inner_stop() noexcept {
 
   this->mf_close_socket();
 
-  this->mv_ReadDeque.mf_terminate();
-  this->mv_WriteDeque.mf_terminate();
-
   this->mv_ReadDeque.mf_clear();
   this->mv_WriteDeque.mf_clear();
+
+  this->mv_ReadDeque.mf_terminate();
+  this->mv_WriteDeque.mf_terminate();
 
   return true;
 }
