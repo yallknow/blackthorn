@@ -21,23 +21,6 @@ void thorn::test::tcp::async_acceptor::mf_set_port(
   this->mv_Port = pc_Port;
 }
 
-void thorn::test::tcp::async_acceptor::mf_close_acceptor() noexcept {
-  _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
-
-  if (!this->mv_OptionalAcceptor) {
-    return;
-  }
-
-  boost::system::error_code lv_ErrorCode{};
-  this->mv_OptionalAcceptor->close(lv_ErrorCode);
-
-  if (lv_ErrorCode) {
-    _THORN_LIBRARY_ASYNC_LOG_WARNING_("Can't close acceptor!");
-  }
-
-  this->mv_OptionalAcceptor.reset();
-}
-
 void thorn::test::tcp::async_acceptor::mf_async_accept() noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
@@ -63,4 +46,21 @@ void thorn::test::tcp::async_acceptor::mf_async_accept() noexcept {
 
         this->mf_async_accept();
       });
+}
+
+void thorn::test::tcp::async_acceptor::mf_close_acceptor() noexcept {
+  _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+  if (!this->mv_OptionalAcceptor) {
+    return;
+  }
+
+  boost::system::error_code lv_ErrorCode{};
+  this->mv_OptionalAcceptor->close(lv_ErrorCode);
+
+  if (lv_ErrorCode) {
+    _THORN_LIBRARY_ASYNC_LOG_WARNING_("Can't close acceptor!");
+  }
+
+  this->mv_OptionalAcceptor.reset();
 }
