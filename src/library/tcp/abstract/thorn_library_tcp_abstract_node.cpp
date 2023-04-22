@@ -24,6 +24,13 @@ void thorn::library::tcp::abstract::node::mf_loop() noexcept {
 
   this->mpf_inner_loop();
 
+  if (!this->mv_OptionalCommunicator) {
+    _THORN_LIBRARY_ASYNC_LOG_WARNING_(
+        "The communicator has already been stopped!");
+
+    return;
+  }
+
   boost::asio::post(this->mv_OptionalContext->mf_get_context(),
                     [this]() noexcept -> void {
                       _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
@@ -79,14 +86,14 @@ bool thorn::library::tcp::abstract::node::mpf_inner_run() noexcept {
 bool thorn::library::tcp::abstract::node::mpf_inner_stop() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
-  this->mv_OptionalContext->mf_stop();
-  this->mv_OptionalContext.reset();
+  this->mv_OptionalCommunicator->mf_stop();
+  this->mv_OptionalCommunicator.reset();
 
   this->mp_SocketSupplier->mf_stop();
   this->mp_SocketSupplier.reset();
 
-  this->mv_OptionalCommunicator->mf_stop();
-  this->mv_OptionalCommunicator.reset();
+  this->mv_OptionalContext->mf_stop();
+  this->mv_OptionalContext.reset();
 
   return true;
 }
