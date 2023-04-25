@@ -31,12 +31,26 @@ void thorn::library::tcp::communicator::mf_push_back(
     const std::shared_ptr<message> pcp_Message) noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
+  if (!this->mf_is_running()) {
+    _THORN_LIBRARY_ASYNC_LOG_WARNING_(
+        "Failed to add a message, the communicator is turned off!");
+
+    return;
+  }
+
   this->mv_WriteDeque.mf_push_back(pcp_Message);
 }
 
 void thorn::library::tcp::communicator::mf_push_front(
     const std::shared_ptr<message> pcp_Message) noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+  if (!this->mf_is_running()) {
+    _THORN_LIBRARY_ASYNC_LOG_WARNING_(
+        "Failed to add a message, the communicator is turned off!");
+
+    return;
+  }
 
   this->mv_WriteDeque.mf_push_front(pcp_Message);
 }
