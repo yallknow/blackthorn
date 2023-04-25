@@ -37,7 +37,7 @@ void thorn::library::abstract::runnable::mf_stop() noexcept {
 }
 
 bool thorn::library::abstract::runnable::mf_is_running() const noexcept {
-  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
+  _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
   return this->mv_IsRunning;
 }
