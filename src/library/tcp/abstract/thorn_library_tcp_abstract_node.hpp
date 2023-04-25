@@ -5,7 +5,9 @@
 
 #include <boost/asio/io_context.hpp>
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -40,8 +42,6 @@ class node /* final */ : public thorn::library::abstract::runnable {
       boost::asio::io_context& pl_Context, const std::string_view pc_Address,
       const std::uint16_t pc_Port) noexcept = 0;
 
-  virtual void mpf_inner_loop() noexcept = 0;
-
  private:
   const std::string mc_Address;
   const std::uint16_t mc_Port;
@@ -52,6 +52,12 @@ class node /* final */ : public thorn::library::abstract::runnable {
   std::optional<thorn::library::tcp::communicator> mv_OptionalCommunicator{
       std::nullopt};
   std::unique_ptr<socket_supplier> mp_SocketSupplier{nullptr};
+
+ protected:
+  std::mutex mv_CommunicatorMutex{};
+
+ protected:
+  std::vector<std::function<void()>> mv_Steps{};
 
  public:
   explicit node(const node& pcl_Other) noexcept = delete;
