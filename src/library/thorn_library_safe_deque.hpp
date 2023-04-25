@@ -63,7 +63,7 @@ inline void safe_deque<T>::mf_push_back(const T& pcl_Item) noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
   {
-    const std::unique_lock<std::mutex> lc_lock(this->mv_Mutex);
+    const std::unique_lock<std::mutex> lc_Lock(this->mv_Mutex);
     this->mv_Deque.emplace_back(pcl_Item);
   }
 
@@ -75,7 +75,7 @@ inline void safe_deque<T>::mf_push_front(const T& pcl_Item) noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
   {
-    const std::unique_lock<std::mutex> lc_lock(this->mv_Mutex);
+    const std::unique_lock<std::mutex> lc_Lock(this->mv_Mutex);
     this->mv_Deque.emplace_front(pcl_Item);
   }
 
@@ -86,9 +86,9 @@ template <typename T>
 inline T safe_deque<T>::mf_pop_back() noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-  std::unique_lock<std::mutex> lv_lock(this->mv_Mutex);
+  std::unique_lock<std::mutex> lv_Lock(this->mv_Mutex);
 
-  this->mv_ConditionVariable.wait(lv_lock, [this]() noexcept -> bool {
+  this->mv_ConditionVariable.wait(lv_Lock, [this]() noexcept -> bool {
     _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     return !this->mv_Deque.empty() || this->mv_IsTerminated;
@@ -108,9 +108,9 @@ template <typename T>
 inline T safe_deque<T>::mf_pop_front() noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-  std::unique_lock<std::mutex> lv_lock(this->mv_Mutex);
+  std::unique_lock<std::mutex> lv_Lock(this->mv_Mutex);
 
-  this->mv_ConditionVariable.wait(lv_lock, [this]() noexcept -> bool {
+  this->mv_ConditionVariable.wait(lv_Lock, [this]() noexcept -> bool {
     _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     return !this->mv_Deque.empty() || this->mv_IsTerminated;
@@ -130,7 +130,7 @@ template <typename T>
 inline void safe_deque<T>::mf_clear() noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-  const std::unique_lock<std::mutex> lc_lock(this->mv_Mutex);
+  const std::unique_lock<std::mutex> lc_Lock(this->mv_Mutex);
   this->mv_Deque.clear();
 }
 
