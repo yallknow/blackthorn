@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
 
 std::string thorn::library::time::msf_now() noexcept {
   return boost::posix_time::to_iso_extended_string(
@@ -19,4 +20,10 @@ std::string thorn::library::time::msf_now_underscore() noexcept {
       '_');
 
   return lv_TimeNow;
+}
+
+std::uint64_t thorn::library::time::msf_since_epoch() noexcept {
+  return std::chrono::duration_cast<std::chrono::microseconds>(
+             std::chrono::system_clock::now().time_since_epoch())
+      .count();
 }

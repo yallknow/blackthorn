@@ -20,32 +20,33 @@ class logger final {
 
   static bool msf_is_initialized() noexcept;
 
+  static void msf_profile(const std::string_view pc_Data) noexcept;
   static void msf_log(const std::string_view pc_Data) noexcept;
   static void msf_async_log(const std::string_view pc_Data) noexcept;
 
   static void msf_set_log_directory(
       const std::string_view pc_LogDirectory) noexcept;
-  static void msf_set_log_filename_prefix(
-      const std::string_view pc_LogFilenamePrefix) noexcept;
-  static void msf_set_log_filename_postfix(
-      const std::string_view pc_LogFilenamePostfix) noexcept;
+
+  static std::string msf_get_pid() noexcept;
 
  private:
   static std::atomic<bool> msv_IsInitialized;
 
   static std::string msv_LogDirectory;
-  static std::string msv_LogFilenamePrefix;
-  static std::string msv_LogFilenamePostfix;
 
  private:
+  static std::unique_ptr<std::ofstream> msp_ProfileStream;
   static std::unique_ptr<std::ofstream> msp_LogStream;
   static std::unique_ptr<std::ofstream> msp_AsyncLogStream;
 
+  static std::unique_ptr<std::mutex> msp_ProfileStreamMutex;
   static std::unique_ptr<std::mutex> msp_LogStreamMutex;
   static std::unique_ptr<std::mutex> msp_AsyncLogStreamMutex;
 
  private:
-  static constexpr std::string_view msc_LogFilenameAsyncPostfix{"_async"};
+  static constexpr std::string_view msc_ProfileFilenamePostfix{"_profile"};
+  static constexpr std::string_view msc_LogFilenamePostfix{"_log"};
+  static constexpr std::string_view msc_AsyncLogFilenamePostfix{"_async"};
 
  public:
   explicit logger() noexcept = delete;

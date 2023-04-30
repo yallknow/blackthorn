@@ -2,39 +2,28 @@
 
 #include <filesystem>
 #include <system_error>
+#include <thread>
 
-#include "thorn_library_preprocessor.hpp"
 #include "thorn_library_time.hpp"
-
-#if defined(_THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_) || \
-    defined(_THORN_LIBRARY_ASYNC_CONSOLE_LOGGING_ENABLED_)
-
-#include <iostream>
-
-#endif  // defined(_THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_) || \
-        // defined(_THORN_LIBRARY_ASYNC_CONSOLE_LOGGING_ENABLED_)
 
 std::atomic<bool> thorn::library::logger::msv_IsInitialized{false};
 
 std::string thorn::library::logger::msv_LogDirectory{"log/"};
-std::string thorn::library::logger::msv_LogFilenamePrefix{};
-std::string thorn::library::logger::msv_LogFilenamePostfix{".json"};
 
+std::unique_ptr<std::ofstream> thorn::library::logger::msp_ProfileStream{
+    nullptr};
 std::unique_ptr<std::ofstream> thorn::library::logger::msp_LogStream{nullptr};
 std::unique_ptr<std::ofstream> thorn::library::logger::msp_AsyncLogStream{
     nullptr};
 
+std::unique_ptr<std::mutex> thorn::library::logger::msp_ProfileStreamMutex{
+    nullptr};
 std::unique_ptr<std::mutex> thorn::library::logger::msp_LogStreamMutex{nullptr};
 std::unique_ptr<std::mutex> thorn::library::logger::msp_AsyncLogStreamMutex{
     nullptr};
 
 void thorn::library::logger::msf_init() noexcept {
   if (msv_IsInitialized) {
-#if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-    std::cerr << gsc_WarningTag << ": " << __FUNCSIG__
-              << " - Logger is already initialized!\n";
-#endif
-
     return;
   }
 
@@ -44,39 +33,36 @@ void thorn::library::logger::msf_init() noexcept {
     std::filesystem::create_directories(msv_LogDirectory, lv_ErrorCode);
 
     if (lv_ErrorCode) {
-#if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-      std::cerr << gsc_ErrorTag << ": " << __FUNCSIG__ << " - "
-                << lv_ErrorCode.value() << " : "
-                << lv_ErrorCode.message() + '\n';
-#endif
-
       return;
     }
   }
 
+  const std::string lc_Extension{".json"};
   const std::string lc_TimeNow{time::msf_now_underscore()};
 
+  msp_ProfileStream.reset(new (std::nothrow) std::ofstream{
+      std::string{msv_LogDirectory + '/' + lc_TimeNow +
+                  msc_ProfileFilenamePostfix.data() + lc_Extension},
+      std::ofstream::trunc});
+
   msp_LogStream.reset(new (std::nothrow) std::ofstream{
-      std::string{{msv_LogDirectory + '/' + msv_LogFilenamePrefix + lc_TimeNow +
-                   msv_LogFilenamePostfix}},
+      std::string{msv_LogDirectory + '/' + lc_TimeNow +
+                  msc_LogFilenamePostfix.data() + lc_Extension},
       std::ofstream::trunc});
 
   msp_AsyncLogStream.reset(new (std::nothrow) std::ofstream{
-      std::string{msv_LogDirectory + '/' + msv_LogFilenamePrefix + lc_TimeNow +
-                  msc_LogFilenameAsyncPostfix.data() + msv_LogFilenamePostfix},
+      std::string{msv_LogDirectory + '/' + lc_TimeNow +
+                  msc_AsyncLogFilenamePostfix.data() + lc_Extension},
       std::ofstream::trunc});
 
+  msp_ProfileStreamMutex.reset(new (std::nothrow) std::mutex{});
   msp_LogStreamMutex.reset(new (std::nothrow) std::mutex{});
   msp_AsyncLogStreamMutex.reset(new (std::nothrow) std::mutex{});
 
-  if (!msp_LogStream || !msp_LogStream->is_open() || !msp_AsyncLogStream ||
-      !msp_AsyncLogStream->is_open() || !msp_LogStreamMutex ||
-      !msp_AsyncLogStreamMutex) {
-#if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-    std::cerr << gsc_ErrorTag << ": " << __FUNCSIG__
-              << " - Can't initialize logger!\n";
-#endif
-
+  if (!msp_ProfileStream || !msp_ProfileStream->is_open() || !msp_LogStream ||
+      !msp_LogStream->is_open() || !msp_AsyncLogStream ||
+      !msp_AsyncLogStream->is_open() || !msp_ProfileStreamMutex ||
+      !msp_LogStreamMutex || !msp_AsyncLogStreamMutex) {
     return;
   }
 
@@ -85,13 +71,11 @@ void thorn::library::logger::msf_init() noexcept {
 
 void thorn::library::logger::msf_destroy() noexcept {
   if (!msv_IsInitialized) {
-#if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-    std::cerr << gsc_WarningTag << ": " << __FUNCSIG__
-              << " - Logger is already destroyed!\n";
-#endif
-
     return;
   }
+
+  msp_ProfileStream->close();
+  msp_ProfileStream.reset();
 
   msp_LogStream->close();
   msp_LogStream.reset();
@@ -99,6 +83,7 @@ void thorn::library::logger::msf_destroy() noexcept {
   msp_AsyncLogStream->close();
   msp_AsyncLogStream.reset();
 
+  msp_ProfileStreamMutex.reset();
   msp_LogStreamMutex.reset();
   msp_AsyncLogStreamMutex.reset();
 
@@ -109,42 +94,35 @@ bool thorn::library::logger::msf_is_initialized() noexcept {
   return msv_IsInitialized;
 }
 
+void thorn::library::logger::msf_profile(
+    const std::string_view pc_Data) noexcept {
+  if (!msv_IsInitialized) {
+    return;
+  }
+
+  const std::lock_guard<std::mutex> lc_ProfileStreamLock{
+      *msp_ProfileStreamMutex};
+  *msp_ProfileStream << pc_Data;
+}
+
 void thorn::library::logger::msf_log(const std::string_view pc_Data) noexcept {
   if (!msv_IsInitialized) {
-#if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-    std::cout << gsc_ErrorTag << ": " << __FUNCSIG__
-              << " - Logger is already destroyed!\n";
-#endif
-
     return;
   }
 
   const std::lock_guard<std::mutex> lc_LogStreamLock{*msp_LogStreamMutex};
   *msp_LogStream << pc_Data;
-
-#if _THORN_LIBRARY_CONSOLE_LOGGING_ENABLED_
-  std::cout << pc_Data;
-#endif
 }
 
 void thorn::library::logger::msf_async_log(
     const std::string_view pc_Data) noexcept {
   if (!msv_IsInitialized) {
-#if _THORN_LIBRARY_ASYNC_CONSOLE_LOGGING_ENABLED_
-    std::cout << gsc_ErrorTag << ": " << __FUNCSIG__
-              << " - Logger is already destroyed!\n";
-#endif
-
     return;
   }
 
   const std::lock_guard<std::mutex> lc_AsyncLogStreamLock{
       *msp_AsyncLogStreamMutex};
   *msp_AsyncLogStream << pc_Data;
-
-#if _THORN_LIBRARY_ASYNC_CONSOLE_LOGGING_ENABLED_
-  std::cout << pc_Data;
-#endif
 }
 
 void thorn::library::logger::msf_set_log_directory(
@@ -152,12 +130,7 @@ void thorn::library::logger::msf_set_log_directory(
   msv_LogDirectory = pc_LogDirectory;
 }
 
-void thorn::library::logger::msf_set_log_filename_prefix(
-    const std::string_view pc_LogFilenamePrefix) noexcept {
-  msv_LogFilenamePrefix = pc_LogFilenamePrefix;
-}
-
-void thorn::library::logger::msf_set_log_filename_postfix(
-    const std::string_view pc_LogFilenamePostfix) noexcept {
-  msv_LogFilenamePostfix = pc_LogFilenamePostfix;
+std::string thorn::library::logger::msf_get_pid() noexcept {
+  return std::to_string(
+      std::hash<std::thread::id>{}(std::this_thread::get_id()));
 }

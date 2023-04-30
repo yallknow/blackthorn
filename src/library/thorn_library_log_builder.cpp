@@ -1,21 +1,18 @@
 #include "thorn_library_log_builder.hpp"
 
-#include <thread>
-
 #include "thorn_library_logger.hpp"
 #include "thorn_library_time.hpp"
 
+std::atomic<bool> thorn::library::log_builder::msv_IsInitialized{false};
 std::atomic<bool> thorn::library::log_builder::msv_IsNextSectionClosed{false};
 
 thorn::library::log_builder::log_builder(
-    const std::string_view pc_Name) noexcept
+    const std::string_view pc_FuncSig) noexcept
     : mc_StartTime{std::chrono::high_resolution_clock::now()} {
-  const std::string lc_PID{
-      std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()))};
-
   const std::string lc_Header{"{ \"time\": \"" + time::msf_now() +
-                              "\", \"pid\":\"" + lc_PID + "\", \"name\": \"" +
-                              pc_Name.data() + "\", \"next\": [ "};
+                              "\", \"pid\":\"" + logger::msf_get_pid() +
+                              "\", \"name\": \"" + pc_FuncSig.data() +
+                              "\", \"next\": [ "};
 
   if (msv_IsNextSectionClosed) {
     logger::msf_log(", " + lc_Header);
@@ -39,27 +36,29 @@ thorn::library::log_builder::~log_builder() noexcept {
 }
 
 void thorn::library::log_builder::msf_init() noexcept {
-  logger::msf_init();
-
-  if (logger::msf_is_initialized()) {
-    logger::msf_log("[ ");
-    logger::msf_async_log(
-        "[ { \"time\": \"" + time::msf_now() +
-        "\", \"pid\": \"0\", \"tag\": \"INFO\", \"value\": \"Start\" }");
+  if (msf_is_initialized() || !logger::msf_is_initialized()) {
+    return;
   }
+
+  logger::msf_log("[ ");
+  logger::msf_async_log("[ {}");
+
+  msv_IsInitialized = true;
 }
 
 void thorn::library::log_builder::msf_destroy() noexcept {
-  if (logger::msf_is_initialized()) {
-    logger::msf_log(" ]");
-    logger::msf_async_log(" ]");
+  if (!msf_is_initialized() || !logger::msf_is_initialized()) {
+    return;
   }
 
-  logger::msf_destroy();
+  logger::msf_log(" ]");
+  logger::msf_async_log(" ]");
+
+  msv_IsInitialized = false;
 }
 
 bool thorn::library::log_builder::msf_is_initialized() noexcept {
-  return logger::msf_is_initialized();
+  return msv_IsInitialized;
 }
 
 void thorn::library::log_builder::msf_log(
@@ -93,21 +92,6 @@ void thorn::library::log_builder::msf_async_log(
   }
 
   logger::msf_async_log(lv_Record + "\" }");
-}
-
-void thorn::library::log_builder::msf_set_log_directory(
-    const std::string_view pc_LogDirectory) noexcept {
-  thorn::library::logger::msf_set_log_directory(pc_LogDirectory);
-}
-
-void thorn::library::log_builder::msf_set_log_filename_prefix(
-    const std::string_view pc_LogFilenamePrefix) noexcept {
-  thorn::library::logger::msf_set_log_filename_prefix(pc_LogFilenamePrefix);
-}
-
-void thorn::library::log_builder::msf_set_log_filename_postfix(
-    const std::string_view pc_LogFilenamePostfix) noexcept {
-  thorn::library::logger::msf_set_log_filename_postfix(pc_LogFilenamePostfix);
 }
 
 std::string thorn::library::log_builder::msf_create_body(

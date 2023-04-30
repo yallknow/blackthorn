@@ -14,7 +14,7 @@ namespace library {
 
 class log_builder final {
  public:
-  explicit log_builder(const std::string_view pc_Name) noexcept;
+  explicit log_builder(const std::string_view pc_FuncSig) noexcept;
   /* virtual */ ~log_builder() noexcept;
 
  public:
@@ -30,13 +30,6 @@ class log_builder final {
       const std::string_view pc_Tag, const std::string_view pc_Message,
       const boost::system::error_code pc_ErrorCode) noexcept;
 
-  static void msf_set_log_directory(
-      const std::string_view pc_LogDirectory) noexcept;
-  static void msf_set_log_filename_prefix(
-      const std::string_view pc_LogFilenamePrefix) noexcept;
-  static void msf_set_log_filename_postfix(
-      const std::string_view pc_LogFilenamePostfix) noexcept;
-
  private:
   static std::string msf_create_body(
       const std::string_view pc_Tag, const std::string_view pc_Message,
@@ -46,6 +39,7 @@ class log_builder final {
   const std::chrono::steady_clock::time_point mc_StartTime;
 
  private:
+  static std::atomic<bool> msv_IsInitialized;
   static std::atomic<bool> msv_IsNextSectionClosed;
 
  public:

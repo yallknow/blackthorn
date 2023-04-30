@@ -3,6 +3,7 @@
 #ifndef _THORN_LIBRARY_TIME_
 #define _THORN_LIBRARY_TIME_
 
+#include <cstdint>
 #include <string>
 
 namespace thorn {
@@ -12,6 +13,8 @@ class time final {
  public:
   static std::string msf_now() noexcept;
   static std::string msf_now_underscore() noexcept;
+
+  static std::uint64_t msf_since_epoch() noexcept;
 
  public:
   explicit time() noexcept = delete;
