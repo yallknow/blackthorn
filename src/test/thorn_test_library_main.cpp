@@ -195,10 +195,10 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_tcp_communicator) {
   BOOST_CHECK(lv_Acceptor.mf_is_running() && lv_Connector.mf_is_running());
 
   // NOTE: Configuring communicators
-  thorn::library::tcp::communicator lv_Alice{lv_AliceContext.mf_get_context(),
-                                             *lv_Acceptor.mf_get_socket()};
-  thorn::library::tcp::communicator lv_Bob{lv_BobContext.mf_get_context(),
-                                           *lv_Connector.mf_get_socket()};
+  thorn::library::tcp::communicator lv_Alice{
+      lv_AliceContext.mf_get_context(), *lv_Acceptor.mf_get_socket(), nullptr};
+  thorn::library::tcp::communicator lv_Bob{
+      lv_BobContext.mf_get_context(), *lv_Connector.mf_get_socket(), nullptr};
 
   lv_Alice.mf_run();
   lv_Bob.mf_run();
