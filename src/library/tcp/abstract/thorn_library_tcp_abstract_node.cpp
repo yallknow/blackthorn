@@ -92,15 +92,15 @@ bool thorn::library::tcp::abstract::node::mpf_inner_run() noexcept {
 bool thorn::library::tcp::abstract::node::mpf_inner_stop() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
+  this->mp_SocketSupplier->mf_stop();
+  this->mp_SocketSupplier.reset();
+
   this->mv_OptionalCommunicator->mf_stop();
 
   {
     const std::unique_lock<std::mutex> lc_Lock(this->mv_CommunicatorMutex);
     this->mv_OptionalCommunicator.reset();
   }
-
-  this->mp_SocketSupplier->mf_stop();
-  this->mp_SocketSupplier.reset();
 
   this->mv_OptionalContext->mf_stop();
   this->mv_OptionalContext.reset();
