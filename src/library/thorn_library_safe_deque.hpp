@@ -62,10 +62,9 @@ template <typename T>
 inline void safe_deque<T>::mf_push_back(const T& pcl_Item) noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-  {
-    const std::unique_lock<std::mutex> lc_Lock(this->mv_Mutex);
-    this->mv_Deque.emplace_back(pcl_Item);
-  }
+  const std::unique_lock<std::mutex> lc_Lock(this->mv_Mutex);
+
+  this->mv_Deque.emplace_back(pcl_Item);
 
   this->mv_ConditionVariable.notify_one();
 }
@@ -74,10 +73,9 @@ template <typename T>
 inline void safe_deque<T>::mf_push_front(const T& pcl_Item) noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-  {
-    const std::unique_lock<std::mutex> lc_Lock(this->mv_Mutex);
-    this->mv_Deque.emplace_front(pcl_Item);
-  }
+  const std::unique_lock<std::mutex> lc_Lock(this->mv_Mutex);
+
+  this->mv_Deque.emplace_front(pcl_Item);
 
   this->mv_ConditionVariable.notify_one();
 }
@@ -94,7 +92,7 @@ inline T safe_deque<T>::mf_pop_back() noexcept {
     return !this->mv_Deque.empty() || this->mv_IsTerminated;
   });
 
-  if (this->mv_IsTerminated) {
+  if (this->mv_Deque.empty()) {
     return T{};
   }
 
@@ -116,7 +114,7 @@ inline T safe_deque<T>::mf_pop_front() noexcept {
     return !this->mv_Deque.empty() || this->mv_IsTerminated;
   });
 
-  if (this->mv_IsTerminated) {
+  if (this->mv_Deque.empty()) {
     return T{};
   }
 
@@ -131,6 +129,7 @@ inline void safe_deque<T>::mf_clear() noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
   const std::unique_lock<std::mutex> lc_Lock(this->mv_Mutex);
+
   this->mv_Deque.clear();
 }
 
