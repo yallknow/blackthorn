@@ -8,6 +8,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <memory>
 
+#include "../tcp/abstract/thorn_library_tcp_abstract_communicator_holder.hpp"
 #include "../tcp/abstract/thorn_library_tcp_abstract_socket_holder.hpp"
 #include "../thorn_library_message.hpp"
 #include "../thorn_library_message_header.hpp"
@@ -20,8 +21,10 @@ namespace tcp {
 class communicator final : public abstract::socket_holder {
  public:
   // NOTE: Communicator should only accept open sockets
-  explicit communicator(boost::asio::io_context& pl_Context,
-                        boost::asio::ip::tcp::socket&& pr_Socket) noexcept;
+  explicit communicator(
+      boost::asio::io_context& pl_Context,
+      boost::asio::ip::tcp::socket&& pr_Socket,
+      abstract::communicator_holder* const pcp_CommunitatorHolder) noexcept;
   /* virtual */ ~communicator() noexcept override;
 
  public:
@@ -45,6 +48,9 @@ class communicator final : public abstract::socket_holder {
  private:
   bool mpf_inner_run() noexcept override;
   bool mpf_inner_stop() noexcept override;
+
+ private:
+  abstract::communicator_holder* const mcp_CommunitatorHolder;
 
  private:
   boost::asio::io_context::strand mv_ReadStrand;

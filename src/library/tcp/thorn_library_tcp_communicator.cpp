@@ -14,8 +14,11 @@
 
 thorn::library::tcp::communicator::communicator(
     boost::asio::io_context& pl_Context,
-    boost::asio::ip::tcp::socket&& pr_Socket) noexcept
-    : mv_ReadStrand{pl_Context}, mv_WriteStrand{pl_Context} {
+    boost::asio::ip::tcp::socket&& pr_Socket,
+    abstract::communicator_holder* const pcp_CommunitatorHolder) noexcept
+    : mv_ReadStrand{pl_Context},
+      mv_WriteStrand{pl_Context},
+      mcp_CommunitatorHolder{pcp_CommunitatorHolder} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   this->mv_OptionalSocket.emplace(std::move(pr_Socket));
@@ -124,6 +127,17 @@ void thorn::library::tcp::communicator::mf_read(
                 _THORN_LIBRARY_ASYNC_LOG_WARNING_("The end of the session!");
 
                 lv_Callback.mf_cancel();
+
+                this->mf_stop();
+
+                if (this->mcp_CommunitatorHolder) {
+                  boost::asio::post(
+                      this->mv_ReadStrand.context(), [this]() noexcept -> void {
+                        _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+                        this->mcp_CommunitatorHolder->mpf_on_disconnect();
+                      });
+                }
               }
 
               return;
@@ -134,6 +148,15 @@ void thorn::library::tcp::communicator::mf_read(
 
               this->mv_ReadDeque.mf_push_back(std::make_shared<message>(
                   *pcp_MessageHeader, *lp_ReadBuffer));
+
+              if (this->mcp_CommunitatorHolder) {
+                boost::asio::post(
+                    this->mv_ReadStrand.context(), [this]() noexcept -> void {
+                      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+                      this->mcp_CommunitatorHolder->mpf_on_message();
+                    });
+              }
 
               return;
             }
@@ -147,6 +170,15 @@ void thorn::library::tcp::communicator::mf_read(
 
               this->mv_ReadDeque.mf_push_back(
                   std::make_shared<message>(lc_MessageHeader, std::string{}));
+
+              if (this->mcp_CommunitatorHolder) {
+                boost::asio::post(
+                    this->mv_ReadStrand.context(), [this]() noexcept -> void {
+                      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+                      this->mcp_CommunitatorHolder->mpf_on_message();
+                    });
+              }
 
               return;
             }
@@ -206,6 +238,18 @@ void thorn::library::tcp::communicator::mf_write() noexcept {
                 _THORN_LIBRARY_ASYNC_LOG_WARNING_("The end of the session!");
 
                 lv_Callback.mf_cancel();
+
+                this->mf_stop();
+
+                if (this->mcp_CommunitatorHolder) {
+                  boost::asio::post(
+                      this->mv_WriteStrand.context(),
+                      [this]() noexcept -> void {
+                        _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+                        this->mcp_CommunitatorHolder->mpf_on_disconnect();
+                      });
+                }
 
                 return;
               }
