@@ -70,7 +70,7 @@ bool thorn::library::tcp::abstract::node::mpf_inner_run() noexcept {
 
   this->mv_OptionalCommunicator.emplace(
       this->mv_OptionalContext->mf_get_context(),
-      this->mp_SocketSupplier->mf_get_socket().value());
+      std::move(this->mp_SocketSupplier->mf_get_socket().value()), this);
   this->mv_OptionalCommunicator->mf_run();
 
   if (!this->mv_OptionalCommunicator->mf_is_running()) {

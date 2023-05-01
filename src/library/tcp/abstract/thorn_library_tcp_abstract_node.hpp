@@ -16,6 +16,7 @@
 #include "../../abstract/thorn_library_abstract_runnable.hpp"
 #include "../../thorn_library_context.hpp"
 #include "../thorn_library_tcp_communicator.hpp"
+#include "thorn_library_tcp_abstract_communicator_holder.hpp"
 #include "thorn_library_tcp_abstract_socket_supplier.hpp"
 
 namespace thorn {
@@ -23,7 +24,8 @@ namespace library {
 namespace tcp {
 namespace abstract {
 
-class node /* final */ : public thorn::library::abstract::runnable {
+class node /* final */ : public thorn::library::abstract::runnable,
+                         public communicator_holder {
  public:
   explicit node(const std::string_view pc_Address, const std::uint16_t pc_Port,
                 const std::uint32_t pc_ThreadPoolSize =
