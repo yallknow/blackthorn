@@ -16,9 +16,6 @@ class poster final {
   /* virtual */ ~poster() noexcept;
 
  public:
-  explicit poster(poster&& pr_Other) noexcept;
-
- public:
   void mf_cancel() noexcept;
 
  private:
@@ -29,6 +26,7 @@ class poster final {
 
  public:
   explicit poster(const poster& pcl_Other) noexcept = delete;
+  explicit poster(poster&& pr_Other) noexcept = delete;
 
  public:
   poster& operator=(const poster& pcl_Other) noexcept = delete;

@@ -16,11 +16,6 @@ thorn::library::poster::~poster() noexcept {
   boost::asio::post(this->ml_Context, this->mv_Task);
 }
 
-thorn::library::poster::poster(poster&& pr_Other) noexcept
-    : ml_Context{pr_Other.ml_Context}, mv_Task{std::move(pr_Other.mv_Task)} {
-  _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
-}
-
 void thorn::library::poster::mf_cancel() noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
