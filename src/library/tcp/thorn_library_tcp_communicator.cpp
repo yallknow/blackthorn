@@ -42,6 +42,12 @@ void thorn::library::tcp::communicator::mf_push_back(
   }
 
   this->mv_WriteDeque.mf_push_back(pcp_Message);
+
+  boost::asio::post(this->mv_ReadStrand.context(), [this]() noexcept -> void {
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+    this->mf_write();
+  });
 }
 
 void thorn::library::tcp::communicator::mf_push_front(
@@ -56,6 +62,12 @@ void thorn::library::tcp::communicator::mf_push_front(
   }
 
   this->mv_WriteDeque.mf_push_front(pcp_Message);
+
+  boost::asio::post(this->mv_ReadStrand.context(), [this]() noexcept -> void {
+    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+    this->mf_write();
+  });
 }
 
 std::shared_ptr<thorn::library::message>
@@ -90,6 +102,12 @@ void thorn::library::tcp::communicator::mf_read(
 
   if (pcp_MessageHeader) {
     lp_ReadBuffer->resize(pcp_MessageHeader->mc_BodySize);
+  }
+
+  if (!this->mv_OptionalSocket) {
+    _THORN_LIBRARY_ASYNC_LOG_ERROR_("The socket has already been closed!");
+
+    return;
   }
 
   boost::asio::async_read(
@@ -208,6 +226,12 @@ void thorn::library::tcp::communicator::mf_write() noexcept {
                                        lcp_MessageToWrite->mc_Header) +
                                    lcp_MessageToWrite->mv_Body};
 
+  if (!this->mv_OptionalSocket) {
+    _THORN_LIBRARY_ASYNC_LOG_ERROR_("The socket has already been closed!");
+
+    return;
+  }
+
   boost::asio::async_write(
       this->mv_OptionalSocket.value(),
       boost::asio::mutable_buffer{(void*)(lp_WriteBuffer.c_str()),
@@ -220,13 +244,6 @@ void thorn::library::tcp::communicator::mf_write() noexcept {
               const std::uint64_t pc_BytesWritten) noexcept -> void {
             _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-            poster lv_Callback{this->mv_ReadStrand.context(),
-                               [this]() noexcept -> void {
-                                 _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
-
-                                 this->mf_write();
-                               }};
-
             if (pc_ErrorCode) {
               _THORN_LIBRARY_ASYNC_LOG_ERROR_CODE_("Can't write message!",
                                                    pc_ErrorCode);
@@ -236,8 +253,6 @@ void thorn::library::tcp::communicator::mf_write() noexcept {
                   pc_ErrorCode == boost::asio::error::connection_reset ||
                   pc_ErrorCode == boost::asio::error::operation_aborted) {
                 _THORN_LIBRARY_ASYNC_LOG_WARNING_("The end of the session!");
-
-                lv_Callback.mf_cancel();
 
                 this->mf_stop();
 
@@ -250,12 +265,12 @@ void thorn::library::tcp::communicator::mf_write() noexcept {
                         this->mcp_CommunitatorHolder->mpf_on_disconnect();
                       });
                 }
-
-                return;
               }
 
               // NOTE: We will try to send this request later
               this->mf_push_front(lcp_MessageToWrite);
+
+              return;
             }
 
             _THORN_LIBRARY_ASYNC_LOG_INFO_(
@@ -278,12 +293,6 @@ bool thorn::library::tcp::communicator::mpf_inner_run() noexcept {
     this->mf_read();
   });
 
-  boost::asio::post(this->mv_WriteStrand.context(), [this]() noexcept -> void {
-    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
-
-    this->mf_write();
-  });
-
   return true;
 }
 
@@ -292,11 +301,11 @@ bool thorn::library::tcp::communicator::mpf_inner_stop() noexcept {
 
   this->mf_close_socket();
 
-  this->mv_ReadDeque.mf_clear();
-  this->mv_WriteDeque.mf_clear();
-
   this->mv_ReadDeque.mf_terminate();
   this->mv_WriteDeque.mf_terminate();
+
+  this->mv_ReadDeque.mf_clear();
+  this->mv_WriteDeque.mf_clear();
 
   return true;
 }
