@@ -25,9 +25,6 @@ class socket_supplier /* final */ : public socket_holder {
   virtual ~socket_supplier() noexcept override;
 
  public:
-  void mf_set_address(const std::string_view pc_Address) noexcept;
-  void mf_set_port(const std::uint16_t pc_Port) noexcept;
-
   std::optional<boost::asio::ip::tcp::socket> mf_get_socket() noexcept;
 
  protected:
