@@ -4,6 +4,7 @@
 #define _THORN_LIBRARY_TCP_ABSTRACT_SOCKET_HOLDER_
 
 #include <boost/asio/ip/tcp.hpp>
+#include <mutex>
 #include <optional>
 
 #include "../../abstract/thorn_library_abstract_runnable.hpp"
@@ -24,6 +25,8 @@ class socket_holder /* final */ : public thorn::library::abstract::runnable {
 
  protected:
   std::optional<boost::asio::ip::tcp::socket> mv_OptionalSocket{std::nullopt};
+
+  std::mutex mv_SocketMutex{};
 
  public:
   explicit socket_holder(const socket_holder& pcl_Other) noexcept = delete;

@@ -17,26 +17,34 @@ thorn::library::tcp::abstract::socket_holder::~socket_holder() noexcept {
 void thorn::library::tcp::abstract::socket_holder::mf_close_socket() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
+  const std::unique_lock<std::mutex> lc_Lock(this->mv_SocketMutex);
+
   if (!this->mv_OptionalSocket) {
     return;
   }
 
-  if (this->mv_OptionalSocket->is_open()) {
-    boost::system::error_code lv_ErrorCode{};
+  if (!this->mv_OptionalSocket->is_open()) {
+    this->mv_OptionalSocket.reset();
 
-    this->mv_OptionalSocket->shutdown(
-        boost::asio::ip::tcp::socket::shutdown_both, lv_ErrorCode);
-
-    if (lv_ErrorCode) {
-      _THORN_LIBRARY_LOG_WARNING_("Can't shutdown socket!");
-    }
-
-    this->mv_OptionalSocket->close(lv_ErrorCode);
-
-    if (lv_ErrorCode) {
-      _THORN_LIBRARY_LOG_WARNING_("Can't close socket!");
-    }
+    return;
   }
+
+  boost::system::error_code lv_ErrorCode{};
+
+  this->mv_OptionalSocket->shutdown(boost::asio::ip::tcp::socket::shutdown_both,
+                                    lv_ErrorCode);
+
+  if (lv_ErrorCode) {
+    _THORN_LIBRARY_LOG_WARNING_("Can't shutdown socket!");
+  }
+
+  this->mv_OptionalSocket->close(lv_ErrorCode);
+
+  if (lv_ErrorCode) {
+    _THORN_LIBRARY_LOG_WARNING_("Can't close socket!");
+  }
+
+  _THORN_LIBRARY_LOG_INFO_("Socket closed successfully.");
 
   this->mv_OptionalSocket.reset();
 }
