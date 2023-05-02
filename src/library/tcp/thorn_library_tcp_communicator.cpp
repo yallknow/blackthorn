@@ -43,7 +43,7 @@ void thorn::library::tcp::communicator::mf_push_back(
 
   this->mv_WriteDeque.mf_push_back(pcp_Message);
 
-  boost::asio::post(this->mv_ReadStrand.context(), [this]() noexcept -> void {
+  boost::asio::post(this->mv_WriteStrand.context(), [this]() noexcept -> void {
     _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     this->mf_write();
@@ -63,7 +63,7 @@ void thorn::library::tcp::communicator::mf_push_front(
 
   this->mv_WriteDeque.mf_push_front(pcp_Message);
 
-  boost::asio::post(this->mv_ReadStrand.context(), [this]() noexcept -> void {
+  boost::asio::post(this->mv_WriteStrand.context(), [this]() noexcept -> void {
     _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
     this->mf_write();
@@ -84,15 +84,6 @@ thorn::library::tcp::communicator::mf_pop_front() noexcept {
   return this->mv_ReadDeque.mf_pop_front();
 }
 
-void thorn::library::tcp::communicator::mf_set_socket(
-    boost::asio::ip::tcp::socket&& pr_Socket) noexcept {
-  _THORN_LIBRARY_LOG_FUNCTION_CALL_();
-
-  this->mf_stop();
-
-  this->mv_OptionalSocket.emplace(std::move(pr_Socket));
-}
-
 void thorn::library::tcp::communicator::mf_read(
     const std::shared_ptr<message_header> pcp_MessageHeader) noexcept {
   _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
@@ -103,6 +94,8 @@ void thorn::library::tcp::communicator::mf_read(
   if (pcp_MessageHeader) {
     lp_ReadBuffer->resize(pcp_MessageHeader->mc_BodySize);
   }
+
+  const std::unique_lock<std::mutex> lc_Lock(this->mv_SocketMutex);
 
   if (!this->mv_OptionalSocket) {
     _THORN_LIBRARY_ASYNC_LOG_ERROR_("The socket has already been closed!");
@@ -225,6 +218,8 @@ void thorn::library::tcp::communicator::mf_write() noexcept {
   const std::string lp_WriteBuffer{string_cast<message_header>::msf_make_string(
                                        lcp_MessageToWrite->mc_Header) +
                                    lcp_MessageToWrite->mv_Body};
+
+  const std::unique_lock<std::mutex> lc_Lock(this->mv_SocketMutex);
 
   if (!this->mv_OptionalSocket) {
     _THORN_LIBRARY_ASYNC_LOG_ERROR_("The socket has already been closed!");

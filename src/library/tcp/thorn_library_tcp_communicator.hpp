@@ -36,9 +36,6 @@ class communicator final : public abstract::socket_holder {
   std::shared_ptr<thorn::library::message> mf_pop_back() noexcept;
   std::shared_ptr<thorn::library::message> mf_pop_front() noexcept;
 
-  // NOTE: Communicator should only accept open sockets
-  void mf_set_socket(boost::asio::ip::tcp::socket&& pr_Socket) noexcept;
-
  private:
   // NOTE: We read the body if a message header is present
   void mf_read(const std::shared_ptr<thorn::library::message_header>
