@@ -58,7 +58,6 @@ class node /* final */ : public thorn::library::abstract::runnable,
  protected:
   std::mutex mv_CommunicatorMutex{};
 
- protected:
   std::vector<std::function<void()>> mv_Steps{};
 
  public:

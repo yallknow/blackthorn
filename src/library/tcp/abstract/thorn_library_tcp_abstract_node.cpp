@@ -34,6 +34,8 @@ void thorn::library::tcp::abstract::node::mf_loop() noexcept {
       return;
     }
 
+    _THORN_LIBRARY_ASYNC_LOG_INFO_("Starting the next step.");
+
     pcl_Step();
   }
 
@@ -60,6 +62,8 @@ bool thorn::library::tcp::abstract::node::mpf_inner_run() noexcept {
     return false;
   }
 
+  _THORN_LIBRARY_LOG_INFO_("Socket supplier created successfully.");
+
   this->mp_SocketSupplier->mf_run();
 
   if (!this->mp_SocketSupplier->mf_is_running()) {
@@ -67,6 +71,8 @@ bool thorn::library::tcp::abstract::node::mpf_inner_run() noexcept {
 
     return false;
   }
+
+  _THORN_LIBRARY_LOG_INFO_("Socket supplier started successfully.");
 
   this->mv_OptionalCommunicator.emplace(
       this->mv_OptionalContext->mf_get_context(),
@@ -78,6 +84,8 @@ bool thorn::library::tcp::abstract::node::mpf_inner_run() noexcept {
 
     return false;
   }
+
+  _THORN_LIBRARY_LOG_INFO_("Communicator started successfully.");
 
   boost::asio::post(this->mv_OptionalContext->mf_get_context(),
                     [this]() noexcept -> void {
@@ -95,10 +103,10 @@ bool thorn::library::tcp::abstract::node::mpf_inner_stop() noexcept {
   this->mp_SocketSupplier->mf_stop();
   this->mp_SocketSupplier.reset();
 
-  this->mv_OptionalCommunicator->mf_stop();
-
   {
     const std::unique_lock<std::mutex> lc_Lock(this->mv_CommunicatorMutex);
+
+    this->mv_OptionalCommunicator->mf_stop();
     this->mv_OptionalCommunicator.reset();
   }
 
