@@ -1,5 +1,7 @@
 #include "thorn_library_focused_thread_pool.hpp"
 
+#include <string>
+
 #include "thorn_library_preprocessor.hpp"
 
 thorn::library::focused_thread_pool::focused_thread_pool(
@@ -15,6 +17,10 @@ thorn::library::focused_thread_pool::focused_thread_pool(
 
     this->mv_ThreadPoolSize = lc_DefaultThreadPoolSize;
   }
+
+  _THORN_LIBRARY_LOG_INFO_("A thread pool of size " +
+                           std::to_string(this->mv_ThreadPoolSize) +
+                           " has been created.");
 }
 
 thorn::library::focused_thread_pool::~focused_thread_pool() {
