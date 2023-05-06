@@ -15,10 +15,10 @@
 thorn::library::tcp::communicator::communicator(
     boost::asio::io_context& pl_Context,
     boost::asio::ip::tcp::socket&& pr_Socket,
-    abstract::communicator_holder* const pcp_CommunitatorHolder) noexcept
+    thorn::library::abstract::connection* const pcp_Connection) noexcept
     : mv_ReadStrand{pl_Context},
       mv_WriteStrand{pl_Context},
-      mcp_CommunitatorHolder{pcp_CommunitatorHolder} {
+      mcp_Connection{pcp_Connection} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   this->mv_OptionalSocket.emplace(std::move(pr_Socket));
@@ -28,6 +28,34 @@ thorn::library::tcp::communicator::~communicator() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
   this->mf_stop();
+}
+
+bool thorn::library::tcp::communicator::mf_set_socket(
+    boost::asio::ip::tcp::socket&& pr_Socket) noexcept {
+  _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+
+  if (!pr_Socket.is_open()) {
+    _THORN_LIBRARY_ASYNC_LOG_ERROR_("Trying to use a closed socket!");
+
+    return false;
+  }
+
+  if (this->mf_is_running()) {
+    _THORN_LIBRARY_ASYNC_LOG_WARNING_(
+        "Setting a socket on a working communicator!");
+
+    this->mf_stop();
+  }
+
+  {
+    const std::unique_lock<std::mutex> lc_Lock(this->mv_SocketMutex);
+
+    this->mv_OptionalSocket.emplace(std::move(pr_Socket));
+  }
+
+  _THORN_LIBRARY_ASYNC_LOG_INFO_("Socket set successfully.");
+
+  return true;
 }
 
 void thorn::library::tcp::communicator::mf_push_back(
@@ -141,13 +169,13 @@ void thorn::library::tcp::communicator::mf_read(
 
                 this->mf_stop();
 
-                if (this->mcp_CommunitatorHolder) {
-                  boost::asio::post(
-                      this->mv_ReadStrand.context(), [this]() noexcept -> void {
-                        _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+                if (this->mcp_Connection) {
+                  boost::asio::post(this->mv_ReadStrand.context(),
+                                    [this]() noexcept -> void {
+                                      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-                        this->mcp_CommunitatorHolder->mpf_on_disconnect();
-                      });
+                                      this->mcp_Connection->mpf_on_disconnect();
+                                    });
                 }
               }
 
@@ -160,13 +188,13 @@ void thorn::library::tcp::communicator::mf_read(
               this->mv_ReadDeque.mf_push_back(std::make_shared<message>(
                   *pcp_MessageHeader, *lp_ReadBuffer));
 
-              if (this->mcp_CommunitatorHolder) {
-                boost::asio::post(
-                    this->mv_ReadStrand.context(), [this]() noexcept -> void {
-                      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+              if (this->mcp_Connection) {
+                boost::asio::post(this->mv_ReadStrand.context(),
+                                  [this]() noexcept -> void {
+                                    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-                      this->mcp_CommunitatorHolder->mpf_on_message();
-                    });
+                                    this->mcp_Connection->mpf_on_message();
+                                  });
               }
 
               return;
@@ -182,13 +210,13 @@ void thorn::library::tcp::communicator::mf_read(
               this->mv_ReadDeque.mf_push_back(
                   std::make_shared<message>(lc_MessageHeader, std::string{}));
 
-              if (this->mcp_CommunitatorHolder) {
-                boost::asio::post(
-                    this->mv_ReadStrand.context(), [this]() noexcept -> void {
-                      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+              if (this->mcp_Connection) {
+                boost::asio::post(this->mv_ReadStrand.context(),
+                                  [this]() noexcept -> void {
+                                    _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-                      this->mcp_CommunitatorHolder->mpf_on_message();
-                    });
+                                    this->mcp_Connection->mpf_on_message();
+                                  });
               }
 
               return;
@@ -251,14 +279,13 @@ void thorn::library::tcp::communicator::mf_write() noexcept {
 
                 this->mf_stop();
 
-                if (this->mcp_CommunitatorHolder) {
-                  boost::asio::post(
-                      this->mv_WriteStrand.context(),
-                      [this]() noexcept -> void {
-                        _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
+                if (this->mcp_Connection) {
+                  boost::asio::post(this->mv_WriteStrand.context(),
+                                    [this]() noexcept -> void {
+                                      _THORN_LIBRARY_ASYNC_LOG_FUNCTION_CALL_();
 
-                        this->mcp_CommunitatorHolder->mpf_on_disconnect();
-                      });
+                                      this->mcp_Connection->mpf_on_disconnect();
+                                    });
                 }
               }
 

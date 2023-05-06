@@ -44,9 +44,9 @@ bool thorn::library::focused_thread_pool::mpf_inner_run() noexcept {
 bool thorn::library::focused_thread_pool::mpf_inner_stop() noexcept {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 
-  for (std::thread& ll_Thread : this->mv_ThreadPool) {
-    if (ll_Thread.joinable()) {
-      ll_Thread.join();
+  for (std::thread& pl_Thread : this->mv_ThreadPool) {
+    if (pl_Thread.joinable()) {
+      pl_Thread.join();
     }
   }
 

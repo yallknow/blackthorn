@@ -31,8 +31,8 @@ class socket_supplier /* final */ : public socket_holder {
   boost::asio::io_context& ml_Context;
 
  protected:
-  std::string mv_Address;
-  std::uint16_t mv_Port;
+  const std::string mc_Address;
+  const std::uint16_t mc_Port;
 
  public:
   explicit socket_supplier(const socket_supplier& pcl_Other) noexcept = delete;

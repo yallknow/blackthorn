@@ -3,19 +3,29 @@
 #ifndef _THORN_LIBRARY_TCP_ABSTRACT_COMMUNICATOR_HOLDER_
 #define _THORN_LIBRARY_TCP_ABSTRACT_COMMUNICATOR_HOLDER_
 
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/ip/tcp.hpp>
+
+#include "../../abstract/thorn_library_abstract_connection.hpp"
+#include "../../abstract/thorn_library_abstract_runnable.hpp"
+#include "../thorn_library_tcp_communicator.hpp"
+
 namespace thorn {
 namespace library {
 namespace tcp {
 namespace abstract {
 
-class communicator_holder /* final */ {
+class communicator_holder /* final */
+    : public thorn::library::abstract::runnable,
+      public thorn::library::abstract::connection {
  public:
-  explicit communicator_holder() noexcept;
-  virtual ~communicator_holder() noexcept;
+  explicit communicator_holder(
+      boost::asio::io_context& pl_Context,
+      boost::asio::ip::tcp::socket&& pr_Socket) noexcept;
+  virtual ~communicator_holder() noexcept override;
 
- public:
-  virtual void mpf_on_disconnect() noexcept = 0;
-  virtual void mpf_on_message() noexcept = 0;
+ protected:
+  thorn::library::tcp::communicator mv_Communicator;
 
  public:
   explicit communicator_holder(const communicator_holder& pcl_Other) noexcept =

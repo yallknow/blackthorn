@@ -5,7 +5,7 @@
 thorn::library::tcp::abstract::socket_supplier::socket_supplier(
     boost::asio::io_context& pl_Context, const std::string_view pc_Address,
     const std::uint16_t pc_Port) noexcept
-    : ml_Context{pl_Context}, mv_Address{pc_Address}, mv_Port{pc_Port} {
+    : ml_Context{pl_Context}, mc_Address{pc_Address}, mc_Port{pc_Port} {
   _THORN_LIBRARY_LOG_FUNCTION_CALL_();
 }
 

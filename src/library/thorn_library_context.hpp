@@ -25,8 +25,8 @@ class context final : public abstract::runnable {
   boost::asio::io_context& mf_get_context() noexcept;
 
  private:
-  bool mpf_inner_run() noexcept override;
-  bool mpf_inner_stop() noexcept override;
+  bool mpf_inner_run() noexcept override final;
+  bool mpf_inner_stop() noexcept override final;
 
  private:
   boost::asio::io_context mv_Context{};

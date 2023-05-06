@@ -22,8 +22,8 @@ bool thorn::library::tcp::connector::mpf_inner_run() noexcept {
 
   boost::system::error_code lv_ErrorCode{};
   const boost::asio::ip::tcp::endpoint lc_Endpoint{
-      boost::asio::ip::make_address(this->mv_Address, lv_ErrorCode),
-      this->mv_Port};
+      boost::asio::ip::make_address(this->mc_Address, lv_ErrorCode),
+      this->mc_Port};
 
   if (lv_ErrorCode) {
     _THORN_LIBRARY_LOG_ERROR_CODE_("Can't create endpoint!", lv_ErrorCode);

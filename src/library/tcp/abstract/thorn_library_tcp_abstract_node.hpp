@@ -4,33 +4,25 @@
 #define _THORN_LIBRARY_TCP_ABSTRACT_NODE_
 
 #include <boost/asio/io_context.hpp>
-#include <cstdint>
+#include <boost/asio/ip/tcp.hpp>
 #include <functional>
-#include <memory>
-#include <mutex>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <thread>
+#include <vector>
 
-#include "../../abstract/thorn_library_abstract_runnable.hpp"
-#include "../../thorn_library_context.hpp"
-#include "../thorn_library_tcp_communicator.hpp"
 #include "thorn_library_tcp_abstract_communicator_holder.hpp"
-#include "thorn_library_tcp_abstract_socket_supplier.hpp"
 
 namespace thorn {
 namespace library {
 namespace tcp {
 namespace abstract {
 
-class node /* final */ : public thorn::library::abstract::runnable,
-                         public communicator_holder {
+class node /* final */ : public communicator_holder {
  public:
-  explicit node(const std::string_view pc_Address, const std::uint16_t pc_Port,
-                const std::uint32_t pc_ThreadPoolSize =
-                    std::thread::hardware_concurrency()) noexcept;
+  explicit node(boost::asio::io_context& pl_Context,
+                boost::asio::ip::tcp::socket&& pr_Socket) noexcept;
   virtual ~node() noexcept override;
+
+ public:
+  bool mf_set_socket(boost::asio::ip::tcp::socket&& pr_Socket) noexcept;
 
  private:
   void mf_loop() noexcept;
@@ -40,24 +32,9 @@ class node /* final */ : public thorn::library::abstract::runnable,
   bool mpf_inner_stop() noexcept override;
 
  protected:
-  virtual void mpf_emplace_socket_supplier(
-      boost::asio::io_context& pl_Context, const std::string_view pc_Address,
-      const std::uint16_t pc_Port) noexcept = 0;
-
- private:
-  const std::string mc_Address;
-  const std::uint16_t mc_Port;
-  const std::uint32_t mc_ThreadPoolSize;
+  boost::asio::io_context& ml_Context;
 
  protected:
-  std::optional<thorn::library::context> mv_OptionalContext{std::nullopt};
-  std::optional<thorn::library::tcp::communicator> mv_OptionalCommunicator{
-      std::nullopt};
-  std::unique_ptr<socket_supplier> mp_SocketSupplier{nullptr};
-
- protected:
-  std::mutex mv_CommunicatorMutex{};
-
   std::vector<std::function<void()>> mv_Steps{};
 
  public:

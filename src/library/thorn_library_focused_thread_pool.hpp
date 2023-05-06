@@ -22,8 +22,8 @@ class focused_thread_pool final : public abstract::runnable {
   /* virtual */ ~focused_thread_pool() noexcept override;
 
  private:
-  bool mpf_inner_run() noexcept override;
-  bool mpf_inner_stop() noexcept override;
+  bool mpf_inner_run() noexcept override final;
+  bool mpf_inner_stop() noexcept override final;
 
  private:
   const std::function<void()> mc_Task;

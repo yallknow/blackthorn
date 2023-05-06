@@ -41,7 +41,7 @@ bool thorn::library::tcp::acceptor::mpf_inner_run() noexcept {
 
   this->mv_OptionalAcceptor.emplace(
       this->ml_Context, boost::asio::ip::tcp::endpoint{
-                            boost::asio::ip::tcp::v4(), this->mv_Port});
+                            boost::asio::ip::tcp::v4(), this->mc_Port});
 
   boost::system::error_code lv_ErrorCode{};
   this->mv_OptionalAcceptor->accept(this->mv_OptionalSocket.value(),

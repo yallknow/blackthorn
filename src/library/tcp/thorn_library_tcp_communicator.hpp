@@ -8,11 +8,11 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <memory>
 
-#include "../tcp/abstract/thorn_library_tcp_abstract_communicator_holder.hpp"
-#include "../tcp/abstract/thorn_library_tcp_abstract_socket_holder.hpp"
+#include "../abstract/thorn_library_abstract_connection.hpp"
 #include "../thorn_library_message.hpp"
 #include "../thorn_library_message_header.hpp"
 #include "../thorn_library_safe_deque.hpp"
+#include "abstract/thorn_library_tcp_abstract_socket_holder.hpp"
 
 namespace thorn {
 namespace library {
@@ -20,14 +20,15 @@ namespace tcp {
 
 class communicator final : public abstract::socket_holder {
  public:
-  // NOTE: Communicator should only accept open sockets
   explicit communicator(
       boost::asio::io_context& pl_Context,
       boost::asio::ip::tcp::socket&& pr_Socket,
-      abstract::communicator_holder* const pcp_CommunitatorHolder) noexcept;
+      thorn::library::abstract::connection* const pcp_Connection) noexcept;
   /* virtual */ ~communicator() noexcept override;
 
  public:
+  bool mf_set_socket(boost::asio::ip::tcp::socket&& pr_Socket) noexcept;
+
   void mf_push_back(
       const std::shared_ptr<thorn::library::message> pcp_Message) noexcept;
   void mf_push_front(
@@ -43,11 +44,11 @@ class communicator final : public abstract::socket_holder {
   void mf_write() noexcept;
 
  private:
-  bool mpf_inner_run() noexcept override;
-  bool mpf_inner_stop() noexcept override;
+  bool mpf_inner_run() noexcept override final;
+  bool mpf_inner_stop() noexcept override final;
 
  private:
-  abstract::communicator_holder* const mcp_CommunitatorHolder;
+  thorn::library::abstract::connection* const mcp_Connection;
 
  private:
   boost::asio::io_context::strand mv_ReadStrand;
