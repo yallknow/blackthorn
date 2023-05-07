@@ -320,12 +320,16 @@ BOOST_AUTO_TEST_CASE(thorn_test_library_test_case_context) {
 
   thorn_test_library_test_case_abstract_runnable(lp_Context);
 
+  const std::chrono::nanoseconds lc_ContextTestDelay{100'000'000};  // 0.1s
+
   // NOTE: Checking if the inner context is running
   lp_Context->mf_run();
+  std::this_thread::sleep_for(lc_ContextTestDelay);
   BOOST_CHECK(!lp_Context->mf_get_context().stopped());
 
   // NOTE: Checking if the inner context is stopped
   lp_Context->mf_stop();
+  std::this_thread::sleep_for(lc_ContextTestDelay);
   BOOST_CHECK(lp_Context->mf_get_context().stopped());
 }
 
