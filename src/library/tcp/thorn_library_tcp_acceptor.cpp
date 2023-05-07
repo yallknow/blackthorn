@@ -32,6 +32,8 @@ void thorn::library::tcp::acceptor::mf_close_acceptor() noexcept {
   }
 
   this->mv_OptionalAcceptor.reset();
+
+  _THORN_LIBRARY_LOG_INFO_("Acceptor closed successfully.");
 }
 
 bool thorn::library::tcp::acceptor::mpf_inner_run() noexcept {
@@ -55,7 +57,7 @@ bool thorn::library::tcp::acceptor::mpf_inner_run() noexcept {
     return false;
   }
 
-  _THORN_LIBRARY_LOG_INFO_("Connection accepted.");
+  _THORN_LIBRARY_LOG_INFO_("Connection accepted successfully.");
 
   return true;
 }

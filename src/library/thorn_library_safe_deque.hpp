@@ -93,6 +93,9 @@ inline T safe_deque<T>::mf_pop_back() noexcept {
   });
 
   if (this->mv_Deque.empty()) {
+    _THORN_LIBRARY_ASYNC_LOG_WARNING_(
+        "The queue was terminated, returning the default value!");
+
     return T{};
   }
 
@@ -115,6 +118,9 @@ inline T safe_deque<T>::mf_pop_front() noexcept {
   });
 
   if (this->mv_Deque.empty()) {
+    _THORN_LIBRARY_ASYNC_LOG_WARNING_(
+        "The queue was terminated, returning the default value!");
+
     return T{};
   }
 

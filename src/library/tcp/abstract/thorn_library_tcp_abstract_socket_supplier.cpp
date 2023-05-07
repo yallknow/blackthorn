@@ -21,7 +21,8 @@ thorn::library::tcp::abstract::socket_supplier::mf_get_socket() noexcept {
 
   // NOTE: You should only call this method if mf_is_running returns true
   if (!this->mf_is_running()) {
-    _THORN_LIBRARY_LOG_WARNING_("Unable to get socket!");
+    _THORN_LIBRARY_LOG_WARNING_(
+        "Unable to get socket, returning the default value!");
 
     return std::nullopt;
   }
