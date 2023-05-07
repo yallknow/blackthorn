@@ -46,6 +46,8 @@ void thorn::test::tcp::async_connector::mf_async_connect() noexcept {
     return;
   }
 
+  _THORN_LIBRARY_ASYNC_LOG_INFO_("Endpoint created successfully.");
+
   this->mv_OptionalSocket->async_connect(
       lc_Endpoint,
       [this](const boost::system::error_code pc_ErrorCode) noexcept -> void {
